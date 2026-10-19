@@ -1,0 +1,17 @@
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+output/
+
+# Source workbooks and templates are local data, not source code.
+*.xls
+*.xlsx
+*.xlsm
+*.xlt
+*.xltx
+*.xltm
+
+# Excel lock files and transient exporter files.
+~$*
+.pcgd-*
