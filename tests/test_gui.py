@@ -17,6 +17,57 @@ from tests.test_excel_exporter import TEMPLATE
 
 
 class GuiTests(unittest.TestCase):
+    def test_parallel_worker_count_is_forwarded_and_saved(self):
+        self.assertEqual(self.app.export_workers.get(), "2")
+        self.app.output_path.set(self.temporary_directory.name)
+        self.app.template_path.set(str(TEMPLATE))
+        self.app.commune_name.set("Test")
+        self.app._analysis_commune = "Test"
+        self.app.households = (object(),)
+        self.app.analysis_result = object()
+        report = SimpleNamespace(success_count=1, failure_count=0, failures=(), warnings=())
+        batch = SimpleNamespace(report=report, accepted=(object(),), directory=Path(self.temporary_directory.name))
+        pdf = SimpleNamespace(successes=(), failures=(), total_pages=0, merged_path=None, merge_error=None)
+        with patch("gui.BATCH_FEATURES_VERIFIED", True), patch("gui.export_excel_batch", return_value=batch) as excel, patch("gui.export_pdf_batch", return_value=pdf) as exporter:
+            for count in (1, 2, 4):
+                self.app.export_workers.set(str(count))
+                self.app.export_all_excel()
+                self.assertEqual(str(self.app.export_workers_input["state"]), "disabled")
+                self.pump_until_idle()
+                self.assertEqual(excel.call_args.kwargs["workers"], count)
+                self.app.export_all_pdf()
+                self.pump_until_idle()
+                self.assertEqual(exporter.call_args.kwargs["workers"], count)
+                self.app.save_configuration()
+                self.assertEqual(load_settings(self.settings_path).export_workers, count)
+            calls = excel.call_count
+            self.app.export_workers.set("5")
+            self.app.export_all_excel()
+            self.assertEqual(excel.call_count, calls)
+            self.assertFalse(self.app._busy)
+
+    def test_pdf_validation_checkbox_is_forwarded_and_saved(self):
+        self.assertFalse(self.app.pdf_validation.get())
+        root = Path(self.temporary_directory.name)
+        self.app.output_path.set(str(root))
+        self.app.commune_name.set("Xã kiểm thử")
+        self.app._analysis_commune = "Xã kiểm thử"
+        self.app.households = (object(),)
+        self.app.analysis_result = object()
+        report = SimpleNamespace(success_count=1, failure_count=0)
+        self.app._last_excel_batch = SimpleNamespace(report=report, accepted=(object(),))
+        result = SimpleNamespace(successes=(), failures=(), merged_path=None, total_pages=0, merge_error=None)
+        with patch("gui.BATCH_FEATURES_VERIFIED", True), patch("gui.export_pdf_batch", return_value=result) as exporter:
+            for selected in (True, False):
+                self.app.pdf_validation.set(selected)
+                self.app.export_all_pdf()
+                self.assertEqual(str(self.app.pdf_validation_check["state"]), "disabled")
+                self.pump_until_idle()
+                self.assertEqual(str(self.app.pdf_validation_check["state"]), "normal")
+                self.assertIs(exporter.call_args.kwargs["validate"], selected)
+                self.app.save_configuration()
+                self.assertIs(load_settings(self.settings_path).pdf_validation, selected)
+
     def test_folder_label_and_multiple_pdf_summaries_are_connected_to_gui(self):
         root = Path(self.temporary_directory.name)
         self.app.source_path.set(str(root))

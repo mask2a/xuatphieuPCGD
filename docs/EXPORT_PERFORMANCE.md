@@ -1,5 +1,19 @@
 # Đo và tối ưu tốc độ xuất — 2026-10-21
 
+## Tùy chọn bỏ kiểm tra PDF mới
+
+GUI có checkbox **Kiểm tra khi xuất PDF**, mặc định bỏ tích. Kiểm tra khi
+tạo Excel không đổi. Bỏ tích không nghiệm thu lại template/Excel hoặc đối
+chiếu bố cục/nội dung PDF; vẫn đọc được PDF, ghi nhận số trang thực tế và
+gộp đúng thứ tự, không ghi đè. Tích bật lại đầy đủ các kiểm tra trước đây.
+
+Đo cùng một hộ giả lập với `--skip-pdf-validation`: Excel 17,28 giây;
+PDF **3,43 giây**; tổng 20,72 giây, so với chế độ đầy đủ trước đó khoảng
+32,5–33,4 giây (PDF khoảng 15 giây). Đây là mức giảm kiểm tra theo lựa
+chọn người dùng, không phải cùng mức kiểm tra; không suy ra tốc độ 38 hộ.
+Log: `EXPORT_PDF_FAST_MODE.json`. Hồi quy phần tùy chọn: 10 test PASS,
+0 FAIL; hai chế độ đều tiếp tục khi một hộ lỗi COM. Không chạy lại toàn bộ suite.
+
 Đo tại public workflow `export_excel_batch` → `export_pdf_batch`, Excel COM
 thật, một hộ giả lập, mẫu hiện tại. Dữ liệu thử nằm trong TemporaryDirectory
 và tự xóa; không tạo đợt thử trong output chính thức.

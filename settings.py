@@ -81,6 +81,13 @@ def reader_worker_count(value) -> int:
     return count
 
 
+def export_worker_count(value) -> int:
+    count = int(value)
+    if not 1 <= count <= 4:
+        raise ValueError("Số tiến trình xuất phải từ 1 đến 4.")
+    return count
+
+
 @dataclass(frozen=True)
 class Settings:
     commune_name: str = ""
@@ -92,6 +99,8 @@ class Settings:
         default_factory=lambda: DEFAULT_SOURCE_COLUMNS.copy()
     )
     output_directory: Path = Path("output")
+    pdf_validation: bool = False
+    export_workers: int = 2
 
     @property
     def report_path(self) -> Path:
@@ -132,6 +141,9 @@ def load_settings(path: str | Path = "config/settings.json") -> Settings:
         output_directory = settings_path.resolve().parent.parent / output_directory
     source_path = _configured_path(data.get("source_path"), settings_path)
     template_path = _configured_path(data.get("template_path"), settings_path)
+    pdf_validation = data.get("pdf_validation", False)
+    if not isinstance(pdf_validation, bool):
+        raise TypeError("pdf_validation must be a boolean")
     return Settings(
         commune_name=(data.get("commune_name") or "").strip(),
         school_year=data.get("school_year"),
@@ -143,6 +155,8 @@ def load_settings(path: str | Path = "config/settings.json") -> Settings:
             **data.get("source_columns", {}),
         },
         output_directory=output_directory,
+        pdf_validation=pdf_validation,
+        export_workers=export_worker_count(data.get("export_workers", 2)),
     )
 
 
@@ -155,6 +169,8 @@ def save_settings(
     template_path: str | Path | None = None,
     output_directory: str | Path | None = None,
     reader_workers: int | str | None = None,
+    pdf_validation: bool | None = None,
+    export_workers: int | str | None = None,
 ) -> Settings:
     settings_path = Path(path)
     data = json.loads(settings_path.read_text(encoding="utf-8"))
@@ -171,6 +187,12 @@ def save_settings(
     data["school_year"] = normalized_school_year or None
     if reader_workers is not None:
         data.setdefault("reader", {})["max_workers"] = reader_worker_count(reader_workers)
+    if export_workers is not None:
+        data["export_workers"] = export_worker_count(export_workers)
+    if pdf_validation is not None:
+        if not isinstance(pdf_validation, bool):
+            raise TypeError("pdf_validation must be a boolean")
+        data["pdf_validation"] = pdf_validation
     for key, value in (
         ("source_path", source_path),
         ("template_path", template_path),

@@ -1,4 +1,4 @@
-"""Batch Excel -> validated COM PDFs -> ordered merged PDF, owned by one worker."""
+"""Per-source Excel/COM PDF export, optionally parallel, with ordered summaries."""
 from dataclasses import dataclass
 from pathlib import Path
 import hashlib
@@ -11,6 +11,7 @@ import uuid
 import unicodedata
 import logging
 from collections import Counter
+from settings import export_worker_count
 
 from pypdf import PdfReader, PdfWriter
 
@@ -103,18 +104,28 @@ def group_progress(progress, index, count, label):
     return lambda done, total, message: progress(index * 1000 + min(1000, int(done * 1000 / max(1, total))), count * 1000, f"{label}: {message}")
 
 
-def export_excel_batch(households, template, output_root, mapping, *, commune_name, progress=None, source_name=None):
+def export_excel_batch(households, template, output_root, mapping, *, commune_name, progress=None, source_name=None, workers=1, _directory=None):
+    workers = export_worker_count(workers)
     households = tuple(sorted(households, key=household_order))
     sources = {}
     for household in households:
         source = str(Path(getattr(household, "source_file", "dulieu")).resolve()).casefold()
         sources.setdefault(source, []).append(household)
     if len(sources) > 1:
-        groups = []
-        for index, source in enumerate(sorted(sources)):
-            members = sources[source]
-            label = Path(members[0].source_file).stem
-            groups.append(export_excel_batch(members, template, output_root, mapping, commune_name=commune_name, source_name=label, progress=group_progress(progress, index, len(sources), label)))
+        if workers > 1:
+            from src.export_parallel import SourceJob, run_source_jobs
+            jobs = []
+            for source in sorted(sources):
+                members = tuple(sources[source])
+                directory = source_directory(output_root, "excel", Path(members[0].source_file).stem)
+                jobs.append(SourceJob("excel", members, Path(output_root), directory, Path(template).resolve(), Path(mapping).resolve(), commune_name))
+            groups = run_source_jobs(jobs, workers, progress)
+        else:
+            groups = []
+            for index, source in enumerate(sorted(sources)):
+                members = sources[source]
+                label = Path(members[0].source_file).stem
+                groups.append(export_excel_batch(members, template, output_root, mapping, commune_name=commune_name, source_name=label, progress=group_progress(progress, index, len(sources), label)))
         report = ExportReport(tuple(s for g in groups for s in g.report.successes), tuple(f for g in groups for f in g.report.failures), tuple(w for g in groups for w in g.report.warnings))
         return ExcelBatch(report, tuple(a for g in groups for a in g.accepted), Path(template).resolve(), Path(mapping).resolve(), Path(output_root) / "excel", groups=tuple(groups))
     if source_name is None:
@@ -122,7 +133,7 @@ def export_excel_batch(households, template, output_root, mapping, *, commune_na
     counts = Counter(_household_code(h) for h in households)
     duplicates = tuple(ExportFailure(_household_code(h), "Duplicate household code in loaded data; no file was selected or overwritten") for h in households if counts[_household_code(h)] > 1)
     households = tuple(h for h in households if counts[_household_code(h)] == 1)
-    directory = source_directory(output_root, "excel", source_name)
+    directory = Path(_directory) if _directory is not None else source_directory(output_root, "excel", source_name)
     with tempfile.TemporaryDirectory() as temporary:
         settings_path = Path(temporary) / "settings.json"
         settings_path.write_text(json.dumps({"commune_name": commune_name, "school_year": "2025-2026"}), encoding="utf-8")
@@ -140,10 +151,14 @@ def export_excel_batch(households, template, output_root, mapping, *, commune_na
     return ExcelBatch(report, tuple(accepted), Path(template).resolve(), Path(mapping).resolve(), directory, source_name=directory.name)
 
 
-def validate_pdf(path, expected_pages):
+def validate_pdf(path, expected_pages, *, check_layout=True):
     reader = PdfReader(path, strict=True)
-    if reader.is_encrypted or len(reader.pages) != expected_pages:
+    if reader.is_encrypted or (expected_pages is not None and len(reader.pages) != expected_pages):
         raise ValueError("PDF page count/encryption does not match the accepted Excel")
+    if not reader.pages:
+        raise ValueError("PDF has no pages")
+    if not check_layout:
+        return reader  # Parsing is still required to safely merge the actual pages.
     for page in reader.pages:
         if not (page.extract_text() or "").strip():
             raise ValueError("PDF contains a blank/unreadable page")
@@ -190,7 +205,7 @@ def validate_pdf_content(reader, household, mapping):
                 raise ValueError(f"PDF has clipped/missing text: member {index}, field {name}; review the Excel cell")
 
 
-def merge_pdfs(items, destination):
+def merge_pdfs(items, destination, *, validate=True):
     destination = Path(destination)
     temporary = destination.with_name("." + uuid.uuid4().hex + ".pdf")
     total = sum(item.pages for item in items)
@@ -200,14 +215,14 @@ def merge_pdfs(items, destination):
         writer = PdfWriter()
         try:
             for item in items:
-                reader = validate_pdf(item.path, item.pages)
+                reader = validate_pdf(item.path, item.pages, check_layout=validate)
                 for page in reader.pages:
                     writer.add_page(page)
             with temporary.open("xb") as stream:
                 writer.write(stream)
         finally:
             writer.close()
-        validate_pdf(temporary, total)
+        validate_pdf(temporary, total, check_layout=validate)
         # Windows rename refuses replacement; never overwrite a previous summary.
         if destination.exists():
             raise FileExistsError(str(destination))
@@ -217,22 +232,28 @@ def merge_pdfs(items, destination):
     return total
 
 
-def export_pdf_batch(batch, output_root, *, progress=None):
+def export_pdf_batch(batch, output_root, *, progress=None, validate=True, workers=1, _directory=None):
+    workers = export_worker_count(workers)
     if not batch.accepted:
         raise ValueError("Export and validate Excel before exporting PDF")
     if batch.groups:
-        groups = []
-        for index, group in enumerate(batch.groups):
-            if group.accepted:
-                groups.append(export_pdf_batch(group, output_root, progress=group_progress(progress, index, len(batch.groups), group.source_name)))
+        eligible_groups = [g for g in batch.groups if g.accepted]
+        if workers > 1 and len(eligible_groups) > 1:
+            from src.export_parallel import SourceJob, run_source_jobs
+            jobs = [SourceJob("pdf", group, Path(output_root), source_directory(output_root, "pdf", group.source_name or group.directory.name), validate=validate) for group in eligible_groups]
+            groups = run_source_jobs(jobs, workers, progress)
+        else:
+            groups = []
+            for index, group in enumerate(eligible_groups):
+                groups.append(export_pdf_batch(group, output_root, progress=group_progress(progress, index, len(eligible_groups), group.source_name), validate=validate))
         paths = tuple(p for g in groups for p in g.merged_paths)
         errors = [g.merge_error for g in groups if g.merge_error]
         return PdfBatch(tuple(s for g in groups for s in g.successes), tuple(f for g in groups for f in g.failures), paths[0] if len(paths) == 1 else None, sum(g.total_pages for g in groups), "; ".join(errors) or None, paths)
     import pythoncom
     import win32com.client
 
-    directory = source_directory(output_root, "pdf", batch.source_name or batch.directory.name)
-    mapping = load_template_mapping(batch.mapping)
+    directory = Path(_directory) if _directory is not None else source_directory(output_root, "pdf", batch.source_name or batch.directory.name)
+    mapping = load_template_mapping(batch.mapping) if validate else None
     successes, failures, eligible = [], [], []
     excel = None
     original_map_paper = None
@@ -245,16 +266,20 @@ def export_pdf_batch(batch, output_root, *, progress=None):
         excel.AutomationSecurity = 3
         original_map_paper = excel.MapPaperSize
         excel.MapPaperSize = False
-        template = excel.Workbooks.Open(str(batch.template), UpdateLinks=0, ReadOnly=True, AddToMru=False)
-        try:
-            sheet = _verify_template_sheet(template, mapping)
-            signature = _template_signature(batch.template, sheet, mapping)
-        finally:
-            template.Close(SaveChanges=False)
+        if validate:
+            template = excel.Workbooks.Open(str(batch.template), UpdateLinks=0, ReadOnly=True, AddToMru=False)
+            try:
+                sheet = _verify_template_sheet(template, mapping)
+                signature = _template_signature(batch.template, sheet, mapping)
+            finally:
+                template.Close(SaveChanges=False)
         ordered = sorted(batch.accepted, key=lambda item: household_order(item.household))
-        total = len(ordered) * 2
+        total = len(ordered) * (2 if validate else 1)
         # Finish validation of the batch before starting any PDF conversion.
         for index, item in enumerate(ordered):
+            if not validate:
+                eligible.append(item)
+                continue
             if progress:
                 progress(index, total, f"Nghiệm thu Excel {index + 1}/{len(ordered)}")
             try:
@@ -266,24 +291,28 @@ def export_pdf_batch(batch, output_root, *, progress=None):
                 failures.append(ExportFailure(_household_code(item.household), str(error)))
         for index, item in enumerate(eligible):
             if progress:
-                progress(len(ordered) + index, total, f"PDF {index + 1}/{len(eligible)}; thành công {len(successes)}, lỗi {len(failures)}")
+                progress((len(ordered) if validate else 0) + index, total, f"PDF {index + 1}/{len(eligible)}; thành công {len(successes)}, lỗi {len(failures)}")
             workbook = None
             temporary = directory / ("." + uuid.uuid4().hex + ".pdf")
             try:
                 workbook = excel.Workbooks.Open(str(item.path), UpdateLinks=0, ReadOnly=True, AddToMru=False)
                 expected_pages = workbook.Worksheets.Count
-                for sheet in workbook.Worksheets:
-                    verify_page_setup(sheet, mapping.print_area)
-                    page_setup(sheet, mapping.print_area)
+                if validate:
+                    for sheet in workbook.Worksheets:
+                        verify_page_setup(sheet, mapping.print_area)
+                        page_setup(sheet, mapping.print_area)
                 workbook.Worksheets.Item(1).Activate()
                 workbook.ExportAsFixedFormat(0, str(temporary), 0, True, False, OpenAfterPublish=False)
                 # GET.DOCUMENT(50) can report cached pagination before rendering.
                 # Check refreshed per-sheet pagination AND actual PDF page count.
-                for sheet in workbook.Worksheets:
-                    sheet.Activate()
-                    if int(excel.ExecuteExcel4Macro("GET.DOCUMENT(50)")) != 1:
-                        raise ValueError("Rendered Excel worksheet does not print on exactly one page")
-                validate_pdf_content(validate_pdf(temporary, expected_pages), item.household, mapping)
+                if validate:
+                    for sheet in workbook.Worksheets:
+                        sheet.Activate()
+                        if int(excel.ExecuteExcel4Macro("GET.DOCUMENT(50)")) != 1:
+                            raise ValueError("Rendered Excel worksheet does not print on exactly one page")
+                    validate_pdf_content(validate_pdf(temporary, expected_pages), item.household, mapping)
+                else:
+                    expected_pages = len(validate_pdf(temporary, None, check_layout=False).pages)
                 workbook.Close(SaveChanges=False)
                 workbook = None
                 final = directory / (item.path.stem + ".pdf")
@@ -318,12 +347,12 @@ def export_pdf_batch(batch, output_root, *, progress=None):
     if successes:
         try:
             merged = Path(output_root) / (directory.name + ".pdf")
-            pages = merge_pdfs(successes, merged)
+            pages = merge_pdfs(successes, merged, validate=validate)
         except Exception as error:
             merged = None
             merge_error = str(error)
     if progress:
         progress(1, 1, f"PDF: {len(successes)} thành công, {len(failures)} lỗi; tổng hợp {pages} trang")
-    report = {"source_name": batch.source_name, "successes": [{"household_code": i.household_code, "file": i.path.name, "pages": i.pages} for i in successes], "failures": [vars(f) for f in failures], "merged": str(merged.resolve()) if merged else None, "total_pages": pages, "merge_error": merge_error}
+    report = {"source_name": batch.source_name, "validation_enabled": validate, "successes": [{"household_code": i.household_code, "file": i.path.name, "pages": i.pages} for i in successes], "failures": [vars(f) for f in failures], "merged": str(merged.resolve()) if merged else None, "total_pages": pages, "merge_error": merge_error}
     (directory / "PDF_REPORT.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return PdfBatch(tuple(successes), tuple(failures), merged, pages, merge_error, (merged,) if merged else ())

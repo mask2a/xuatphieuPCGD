@@ -1,5 +1,35 @@
 # PCGD_HOGIADINH — Trạng thái dự án
 
+## Xuất nhiều nguồn song song — 2026-10-21
+
+- GUI có mục **Xuất song song (1–4)**, mặc định 2 tiến trình, lưu trong cấu hình.
+  Mỗi tiến trình dùng Excel COM riêng, xử lý từng nguồn; không chia sẻ COM.
+- Hai nguồn giả lập, bỏ kiểm tra PDF: tổng thời gian giảm từ 36,74 xuống
+  22,41 giây (khoảng 39%). Hash nguồn, mẫu và mapping giữ nguyên.
+- Giữ thứ tự nguồn/hộ, tên thư mục và PDF tổng hợp; giữ chỗ tên trước khi chạy,
+  chống ghi đè. Nguồn lỗi được báo riêng, nguồn khác tiếp tục.
+- Chi tiết, giới hạn và lệnh benchmark: [PARALLEL_EXPORT.md](docs/PARALLEL_EXPORT.md).
+  Hồi quy liên quan: **10 PASS, 0 FAIL, 0 SKIP**; chưa chạy lại toàn bộ suite.
+  Khởi động lại GUI để dùng mã mới. Chưa commit thay đổi này.
+
+## Tùy chọn kiểm tra khi xuất PDF — 2026-10-21
+
+- Đã có checkbox **Kiểm tra khi xuất PDF**, mặc định bỏ tích, lưu bằng
+  nút Lưu cấu hình. Khóa lựa chọn trong lúc tác vụ đang chạy.
+- Bỏ tích: xuất trực tiếp Excel hiện tại, không nghiệm thu lại Excel/mẫu,
+  không đối chiếu nội dung hoặc bố cục PDF. Giữ PageSetup đã lưu, ghi nhận
+  số trang thực tế; vẫn đọc PDF để gộp, chống ghi đè và giải phóng COM.
+- Tích: giữ kiểm tra đầy đủ như bản trước. API `export_pdf_batch` mặc định
+  vẫn kiểm tra; GUI truyền rõ lựa chọn `validate=True/False` cho mọi nguồn.
+- Bước xuất/nghiệm thu Excel không đổi. Không sửa nguồn, mẫu hoặc mapping.
+  Commit mốc ổn định `594fe00` vẫn giữ nguyên; chưa commit các thay đổi mới.
+- Kiểm thử liên quan: **10 test PASS, 0 FAIL** (9 test chức năng/cấu hình
+  và 1 test COM có hai subtest bật/tắt). Có kiểm tra nhiều nguồn, 8 người
+  trên 2 trang và tiếp tục sau lỗi COM ở cả hai chế độ. Chưa chạy toàn bộ suite.
+- Đo một hộ giả lập: bước PDF bỏ kiểm tra mất **3,43 giây** so với khoảng
+  15 giây ở chế độ đầy đủ; Excel+PDF mất 20,72 giây. Hash nguồn/mẫu/mapping
+  trước/sau không đổi. Log: `docs/EXPORT_PDF_FAST_MODE.json`.
+
 ## Tối ưu tốc độ xuất — 2026-10-21
 
 - Profiler xác định lặp gọi COM khi đọc đường viền là nút thắt lớn.

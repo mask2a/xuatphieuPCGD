@@ -101,13 +101,16 @@ class PdfPaginationRegressionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             excel = export_excel_batch([legible_fixture("FAIL-1", 1), legible_fixture("PASS-2", 1)], TEMPLATE, root, MAPPING, commune_name=COMMUNE)
             self.assertEqual(excel.report.failure_count, 0, excel.report.failures)
-            with patch("win32com.client.DispatchEx", side_effect=lambda *a, **k: ExcelProxy(original_dispatch(*a, **k))):
-                pdf = export_pdf_batch(excel, root)
-            self.assertEqual([f.household_code for f in pdf.failures], ["FAIL-1"])
-            self.assertIn("Injected ExportAsFixedFormat failure", pdf.failures[0].error)
-            self.assertEqual([p.household_code for p in pdf.successes], ["PASS-2"])
-            self.assertEqual(pdf.total_pages, 1)
-            self.assertEqual(len(PdfReader(pdf.merged_path).pages), 1)
+            for validate in (True, False):
+                with self.subTest(validate=validate):
+                    state["failed"] = False
+                    with patch("win32com.client.DispatchEx", side_effect=lambda *a, **k: ExcelProxy(original_dispatch(*a, **k))):
+                        pdf = export_pdf_batch(excel, root, validate=validate)
+                    self.assertEqual([f.household_code for f in pdf.failures], ["FAIL-1"])
+                    self.assertIn("Injected ExportAsFixedFormat failure", pdf.failures[0].error)
+                    self.assertEqual([p.household_code for p in pdf.successes], ["PASS-2"])
+                    self.assertEqual(pdf.total_pages, 1)
+                    self.assertEqual(len(PdfReader(pdf.merged_path).pages), 1)
 
     def test_seven_members_share_one_sheet_and_one_page(self):
         with tempfile.TemporaryDirectory() as root:

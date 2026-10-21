@@ -17,6 +17,7 @@ from settings import (
     load_settings,
     save_settings,
     reader_worker_count,
+    export_worker_count,
 )
 from src.school_year_labels import build_school_year_labels
 from src.template_mapper import TemplateMapping, load_template_mapping
@@ -162,6 +163,8 @@ class PCGDApp:
         )
         self.search_query = tk.StringVar(master=root, value="")
         self.reader_workers = tk.StringVar(master=root, value=str(settings.reader.max_workers))
+        self.pdf_validation = tk.BooleanVar(master=root, value=settings.pdf_validation)
+        self.export_workers = tk.StringVar(master=root, value=str(settings.export_workers))
         self.household_total = tk.StringVar(master=root, value="0")
         self.member_total = tk.StringVar(master=root, value="0")
         self.warning_total = tk.StringVar(master=root, value="0")
@@ -301,6 +304,13 @@ class PCGDApp:
             command=self.open_output_directory,
         )
         self.open_output_button.pack(side="right")
+        self.pdf_validation_check = ttk.Checkbutton(
+            files, text="Kiểm tra khi xuất PDF", variable=self.pdf_validation,
+        )
+        self.pdf_validation_check.grid(row=3, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        ttk.Label(files, text="Xuất song song (1–4)").grid(row=4, column=3, sticky="w")
+        self.export_workers_input = ttk.Spinbox(files, from_=1, to=4, textvariable=self.export_workers, width=6)
+        self.export_workers_input.grid(row=4, column=4, sticky="w")
 
         list_frame = ttk.LabelFrame(
             container,
@@ -464,6 +474,8 @@ class PCGDApp:
                 template_path=self.template_path.get(),
                 output_directory=self.output_path.get(),
                 reader_workers=self.reader_workers.get(),
+                pdf_validation=self.pdf_validation.get(),
+                export_workers=self.export_workers.get(),
             )
         except (OSError, TypeError, ValueError) as error:
             self._show_error("Không lưu được cấu hình", str(error))
@@ -598,6 +610,8 @@ class PCGDApp:
         loaded = BATCH_FEATURES_VERIFIED and not self._busy and bool(self.households) and self.analysis_result is not None
         self.export_all_button.configure(state="normal" if loaded else "disabled")
         self.export_pdf_button.configure(state="normal" if loaded and self._last_excel_batch is not None and self._last_excel_batch.accepted else "disabled")
+        self.pdf_validation_check.configure(state="disabled" if self._busy else "normal")
+        self.export_workers_input.configure(state="disabled" if self._busy else "normal")
 
     def _batch_context(self):
         if self._busy or not BATCH_FEATURES_VERIFIED:
@@ -631,6 +645,11 @@ class PCGDApp:
         context = self._batch_context()
         if context is None:
             return
+        try:
+            workers = export_worker_count(self.export_workers.get())
+        except ValueError as error:
+            self._show_error("Số tiến trình không hợp lệ", str(error))
+            return
         commune, output = context
         template = Path(self.template_path.get()).expanduser()
         if not template.is_file():
@@ -641,7 +660,8 @@ class PCGDApp:
         source_name = self._export_source_name()
         self._last_excel_batch = None
         self._log(f"Bắt đầu xuất Excel: {len(households)} hộ. Kết quả chia theo tên nguồn; thêm hậu tố khi trùng, không ghi đè.")
-        self._start_background("Đang xuất Excel", lambda: export_excel_batch(households, template, output, mapping, commune_name=commune, progress=self._batch_progress, source_name=source_name), self._on_batch_excel_complete)
+        self._log(f"Xuất song song: tối đa {workers} tệp nguồn cùng lúc.")
+        self._start_background("Đang xuất Excel", lambda: export_excel_batch(households, template, output, mapping, commune_name=commune, progress=self._batch_progress, source_name=source_name, workers=workers), self._on_batch_excel_complete)
 
     def _on_batch_excel_complete(self, batch):
         self._last_excel_batch = batch
@@ -659,13 +679,21 @@ class PCGDApp:
         context = self._batch_context()
         if context is None:
             return
+        try:
+            workers = export_worker_count(self.export_workers.get())
+        except ValueError as error:
+            self._show_error("Số tiến trình không hợp lệ", str(error))
+            return
         if self._last_excel_batch is None or not self._last_excel_batch.accepted:
             self._show_warning("Chưa có Excel hợp lệ", "Xuất Excel trước; chỉ phiếu đã nghiệm thu mới được chuyển PDF.")
             return
         batch = self._last_excel_batch
         output = context[1]
-        self._log(f"Bắt đầu PDF: nghiệm thu lại {len(batch.accepted)} phiếu Excel trước khi chuyển và gộp.")
-        self._start_background("Đang xuất PDF", lambda: export_pdf_batch(batch, output, progress=self._batch_progress), self._on_batch_pdf_complete)
+        validate = self.pdf_validation.get()
+        mode = "kiểm tra đầy đủ" if validate else "bỏ kiểm tra lại Excel và nội dung PDF"
+        self._log(f"Bắt đầu PDF: {len(batch.accepted)} phiếu; {mode}.")
+        self._log(f"Xuất song song: tối đa {workers} tệp nguồn cùng lúc.")
+        self._start_background("Đang xuất PDF", lambda: export_pdf_batch(batch, output, progress=self._batch_progress, validate=validate, workers=workers), self._on_batch_pdf_complete)
 
     def _on_batch_pdf_complete(self, report):
         excel = self._last_excel_batch.report

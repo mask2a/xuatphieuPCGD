@@ -1,0 +1,137 @@
+{
+  "sources": 2,
+  "workers": 2,
+  "pdf_validation": false,
+  "excel_seconds": 17.869520700001885,
+  "pdf_seconds": 4.538510400001542,
+  "total_seconds": 22.408031100003427,
+  "com_invocations_parent_process": 0,
+  "functions_parent_process": [
+    {
+      "function": "export_parallel.py:69:run_source_jobs",
+      "calls": 2,
+      "seconds": 22.3846339
+    },
+    {
+      "function": "export_workflow.py:107:export_excel_batch",
+      "calls": 1,
+      "seconds": 17.8681828
+    },
+    {
+      "function": "export_workflow.py:235:export_pdf_batch",
+      "calls": 1,
+      "seconds": 4.538477100000001
+    },
+    {
+      "function": "export_parallel.py:1:<module>",
+      "calls": 1,
+      "seconds": 0.0177065
+    },
+    {
+      "function": "export_workflow.py:80:source_directory",
+      "calls": 4,
+      "seconds": 0.0016406
+    },
+    {
+      "function": "verify_gui_batch_pdf.py:21:legible_fixture",
+      "calls": 2,
+      "seconds": 0.0012203000000000001
+    },
+    {
+      "function": "test_approved_mapping.py:17:full_household",
+      "calls": 2,
+      "seconds": 0.0011022
+    },
+    {
+      "function": "test_excel_exporter.py:24:make_household",
+      "calls": 2,
+      "seconds": 0.0009710000000000001
+    },
+    {
+      "function": "household_grouper.py:46:group_households",
+      "calls": 2,
+      "seconds": 0.0006003
+    },
+    {
+      "function": "normalizer.py:31:normalize_records",
+      "calls": 2,
+      "seconds": 0.0002786
+    },
+    {
+      "function": "export_workflow.py:30:household_order",
+      "calls": 2,
+      "seconds": 0.0001388
+    },
+    {
+      "function": "excel_exporter.py:1056:_safe_filename_component",
+      "calls": 4,
+      "seconds": 0.0001121
+    },
+    {
+      "function": "normalizer.py:85:_normalized_text",
+      "calls": 114,
+      "seconds": 0.0001033
+    },
+    {
+      "function": "household_grouper.py:196:_is_household_head",
+      "calls": 2,
+      "seconds": 3.51e-05
+    },
+    {
+      "function": "household_grouper.py:154:_household_warnings",
+      "calls": 2,
+      "seconds": 2.96e-05
+    },
+    {
+      "function": "household_grouper.py:215:_declared_head_name_key",
+      "calls": 4,
+      "seconds": 2.08e-05
+    },
+    {
+      "function": "export_parallel.py:75:emit",
+      "calls": 4,
+      "seconds": 1.6800000000000002e-05
+    },
+    {
+      "function": "excel_exporter.py:1063:<genexpr>",
+      "calls": 40,
+      "seconds": 1.29e-05
+    },
+    {
+      "function": "household_grouper.py:210:_single_value",
+      "calls": 4,
+      "seconds": 1.2600000000000001e-05
+    },
+    {
+      "function": "normalizer.py:97:_key",
+      "calls": 4,
+      "seconds": 1.22e-05
+    },
+    {
+      "function": "household_grouper.py:201:<genexpr>",
+      "calls": 14,
+      "seconds": 1.09e-05
+    },
+    {
+      "function": "excel_exporter.py:1064:<genexpr>",
+      "calls": 40,
+      "seconds": 9.4e-06
+    },
+    {
+      "function": "export_workflow.py:32:<genexpr>",
+      "calls": 8,
+      "seconds": 9.100000000000001e-06
+    },
+    {
+      "function": "normalizer.py:109:_joined_fields",
+      "calls": 2,
+      "seconds": 5.3e-06
+    },
+    {
+      "function": "normalizer.py:93:_clean_text",
+      "calls": 2,
+      "seconds": 5e-06
+    }
+  ],
+  "protected_unchanged": true
+}

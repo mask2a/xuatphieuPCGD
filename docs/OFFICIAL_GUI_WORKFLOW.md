@@ -13,6 +13,24 @@ Chạy GUI: `.\venv\Scripts\python.exe main.py`.
 4. Bấm **Xuất PDF và tổng hợp** để chuyển đợt Excel gần nhất trong phiên
    GUI đang mở. Đợt này có thể là một hộ hoặc toàn bộ hộ.
 
+**Xuất song song (1–4)**: mặc định 2 tiến trình Excel riêng biệt cho các tệp
+nguồn khác nhau. Chọn 1 để chạy tuần tự; có thể chọn 3–4 nếu máy đủ tài nguyên.
+Một tệp nguồn vẫn xử lý tuần tự các hộ. Nút Lưu cấu hình lưu lựa chọn này.
+Xem [số đo tốc độ và cơ chế xử lý](PARALLEL_EXPORT.md).
+
+**Kiểm tra khi xuất PDF** (trong phần Tệp và cấu hình):
+
+- Mặc định bỏ tích: chuyển Excel hiện tại sang PDF và gộp trực tiếp, không
+  kiểm tra lại hash, nội dung/định dạng Excel, mẫu, vùng in hoặc đối chiếu
+  nội dung/số trang PDF với phiếu dự kiến. Dùng PageSetup đã lưu trong Excel.
+- Tích: chạy đủ các kiểm tra như bản ổn định trước đây.
+- Cả hai chế độ vẫn đóng workbook/COM đúng cách, không ghi đè, đọc PDF để
+  gộp được và giữ đúng thứ tự hộ. Chế độ nhanh ghi nhận số trang PDF thực
+  tế, không giả định workbook chỉ có một trang. Không gộp file hỏng/mã hóa.
+- Lựa chọn được lưu khi bấm **Lưu cấu hình**; không thay đổi giữa tác vụ.
+  Nhật ký và `PDF_REPORT.json` ghi rõ chế độ đã dùng.
+- Kiểm tra khi tạo Excel vẫn giữ nguyên; tùy chọn chỉ tác động bước PDF.
+
 Thư mục kết quả chính thức:
 
 ```text
