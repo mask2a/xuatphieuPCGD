@@ -81,10 +81,13 @@ Với hàng bắt đầu `s` của một thành viên, cấu trúc đã xác min
 | `N` | `Z1:AG1` | Mã số phiếu; giữ nguyên chuỗi |
 | `O` | `Z2:AG2` | Ứng viên cho diện cư trú; cần quy tắc đánh dấu checkbox và xử lý khác chữ hoa/thường |
 | `P` | `AF` trong khối thành viên | Nguồn là tình trạng cư trú, nhãn đích là chuyển đến/chuyển đi/chết; chỉ ánh xạ sau khi đối chiếu giá trị cụ thể |
-| `Q`, `R` | `H:J` một dòng trong khối | Chưa xác định dòng năm học; nguồn không có năm học đi kèm |
-| `S`, `T` | `K:O` một dòng trong khối | Hai trường nguồn cùng ứng viên với một ô đích; cần quy tắc ghép trường và huyện |
+| `R` | `H:J` ở dòng nhãn năm thứ nhất | Người dùng duyệt lấy lớp cụ thể từ R; Q chỉ dùng đối chiếu, không ghép vào giá trị in |
+| `Q` | Không ghi trực tiếp | Chỉ dùng đối chiếu với R; không có quy tắc tự sửa hoặc ghép Q/R |
+| `T` | `K:O` ở dòng nhãn năm thứ nhất | Người dùng duyệt ghi nguyên tên trường từ T; giá trị có dạng năm phải cảnh báo, không sửa |
+| `S` | Chưa ánh xạ | Chưa được duyệt; không ghép vào T |
 | `U` | Không có | Mẫu không có ô mã trường |
-| `V`, `W`, `X` | `P`, `Q`, `R` trong khối | Nhãn gần nhau; chưa xác định dòng đích cho dữ liệu tốt nghiệp |
+| `V`, `X` | `P`, `R` ở dòng nhãn năm thứ nhất | Người dùng duyệt ghi nguyên bậc và chuỗi năm tốt nghiệp tại dòng thứ nhất, kể cả sự kiện quá khứ |
+| `W` | Không ghi | Cột bổ túc chưa có dữ liệu mẫu và chưa có quy tắc được duyệt |
 | `Y`, `AA` | `S`, `T:U` trong khối | Ứng viên tốt nghiệp nghề; chưa xác định dòng đích |
 | `Z` | Không có | Số bằng tốt nghiệp không có ô riêng |
 | `AB`, `AC` | `V`, `W` trong khối | Nhãn gần nhau; chưa xác định dòng đích |
@@ -115,6 +118,10 @@ xác minh và có quy tắc bảo toàn nhãn mới được ghi:
 | Dân tộc `H` | `D{s+3}` | Giữ nhãn `DT:` |
 | Tôn giáo `I` | `E{s+3}` | Giữ nhãn `TG:` |
 | Cha/mẹ/người đỡ đầu `AV` | `B{s+4}:E{s+4}` | Giữ nhãn mẫu |
+| Lớp cụ thể `R` | Ô neo H ở dòng đầu của từng khối | Ghi nguyên giá trị; Q chỉ đối chiếu. Giá trị đặc biệt hoặc Q/R không so khớp được thì giữ nguyên và cảnh báo |
+| Tên trường `T` | Ô neo K ở dòng đầu của từng khối | Ghi nguyên giá trị; chuỗi có dạng năm cảnh báo, không sửa; S không ghi |
+| Bậc tốt nghiệp `V` | P ở dòng đầu của từng khối | Ghi nguyên chuỗi; nếu V hoặc X thiếu thì ghi phần hiện có và cảnh báo |
+| Năm tốt nghiệp `X` | R ở dòng đầu của từng khối | Ghi nguyên chuỗi, kể cả năm trước năm cấu hình; không đổi thành năm đơn |
 
 Chỉ phần dữ liệu sau nhãn được thay; các ô đích được kiểm tra không có công
 thức trước khi ghi. Tệp mẫu được mở chỉ đọc, sao chép bằng Excel COM và không
@@ -130,12 +137,15 @@ có dữ liệu nguồn, báo cáo xuất ghi cảnh báo và giữ nguyên mẫ
   được xác minh đầy đủ.
 - Diện ưu tiên `J`: chưa có trường riêng tương ứng đã xác minh trên mẫu;
   nếu nguồn có giá trị, exporter ghi cảnh báo thay vì bỏ qua.
-- Tình trạng cư trú `P`, học tập/trường `Q:T`, tốt nghiệp và quá trình học
-  `V:AH`: chưa có quy tắc gắn dòng theo năm học.
+- Tình trạng cư trú `P`, huyện `S`, bổ túc `W`, tốt nghiệp nghề và quá
+  trình học `Y:AH`: chưa có quy tắc được duyệt.
 - Khuyết tật `AI:AP`, chứng nhận/khả năng học `AQ:AR`, hoàn cảnh `AS:AT`,
   ghi chú `AX`: chưa chốt cách biểu diễn hoặc dòng đích.
-- Các dòng năm học có sẵn trong mẫu giữ nguyên; `school_year` hiện chưa được
-  dùng để sửa nội dung cố định của biểu mẫu.
+- Trong lượt thử mapping này, cả 70 nhãn năm được giữ nguyên như mẫu gốc;
+  exporter không gọi hàm cập nhật nhãn. Do mẫu gốc bắt đầu ở
+  `2025-2026` trong khi cấu hình hiện là `2026-2027`, nhãn và cấu hình chưa
+  khớp trong các workbook thử. Đây là giới hạn đã được người dùng chọn cho
+  lần thử này, không phải xác nhận năm nghiệp vụ.
 
 Do đó, Giai đoạn 3 hiện chỉ xuất các trường đã xác minh. Chưa thể coi toàn
 bộ ánh xạ dữ liệu là hoàn tất cho nghiệp vụ thực tế cho tới khi các quy tắc
@@ -145,7 +155,8 @@ Trước khi xuất, exporter đọc `config/settings.json` (hoặc đường d�
 được truyền rõ), yêu cầu `commune_name` và `school_year` hợp lệ, và kiểm tra
 địa bàn từng hộ khớp cấu hình. Năm học có dạng `YYYY-YYYY` với hai năm liên
 tiếp. Giá trị năm học được nêu trong cảnh báo; chưa thay đổi các dòng năm in
-sẵn khi chưa có quy tắc gắn trường nguồn vào đúng năm.
+sẵn trong các workbook thử mapping này; B5–B7 chỉ ghi ở dòng đầu của mỗi
+khối theo quyết định người dùng.
 
 Không được ghi đè các nhãn có sẵn (`QH với chủ hộ:`, `Ngày sinh:`,
 `Cha, mẹ, Ng đỡ đầu:`, `DT:`, `TG:`) mà không bảo toàn nhãn. Không thể coi

@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+import os
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 import openpyxl
 import xlrd
 
-from settings import Settings
+from settings import Settings, reader_worker_count
 
 
 SUPPORTED_SUFFIXES = {".xls", ".xlsx"}
@@ -37,6 +39,7 @@ class RawRecord:
     values: Mapping[str, Any]
     display_values: Mapping[str, str]
     source: SourceLocation
+    headers: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -54,7 +57,8 @@ class ReadResult:
 
 
 def read_sources(
-    paths: Iterable[str | Path], settings: Settings | None = None
+    paths: Iterable[str | Path], settings: Settings | None = None,
+    *, progress: Callable[[int, int, str], None] | None = None,
 ) -> ReadResult:
     """Read one or more workbooks/directories; report failures per file."""
     effective_settings = settings or Settings()
@@ -69,15 +73,15 @@ def read_sources(
             continue
         if path.is_dir():
             try:
-                entries = sorted(path.rglob("*"), key=lambda item: str(item).casefold())
+                entries = _folder_files(path, effective_settings, skipped, errors)
+                for entry in entries:
+                    if entry.suffix.casefold() in SUPPORTED_SUFFIXES:
+                        (skipped if _excluded(entry, effective_settings) else candidates).append(entry)
             except OSError as error:
                 errors.append(FileReadError(path, str(error)))
                 continue
-            for entry in entries:
-                if entry.is_file() and entry.suffix.casefold() in SUPPORTED_SUFFIXES:
-                    (skipped if _should_skip(entry) else candidates).append(entry)
         elif path.is_file() and path.suffix.casefold() in SUPPORTED_SUFFIXES:
-            (skipped if _should_skip(path) else candidates).append(path)
+            (skipped if _excluded(path, effective_settings) else candidates).append(path)
         elif path.is_file():
             skipped.append(path)
         else:
@@ -91,17 +95,39 @@ def read_sources(
             seen.add(identity)
             unique_candidates.append(candidate)
 
+    # Submit only a bounded number of workbooks, preserving deterministic input
+    # order in the result regardless of completion order. No Excel COM in workers.
+    results = [None] * len(unique_candidates)
+    workers = min(reader_worker_count(effective_settings.reader.max_workers), len(unique_candidates))
+    if progress:
+        progress(0, len(unique_candidates), f"Tìm thấy {len(unique_candidates)} tệp nguồn; dùng {workers} luồng đọc.")
+    if workers:
+        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="pcgd-reader") as executor:
+            indexes = iter(range(len(unique_candidates)))
+            pending = {}
+            for _ in range(workers):
+                index = next(indexes)
+                pending[executor.submit(_read_outcome, unique_candidates[index], effective_settings)] = index
+            completed = 0
+            while pending:
+                finished, _ = wait(pending, return_when=FIRST_COMPLETED)
+                for future in finished:
+                    index = pending.pop(future)
+                    results[index] = future.result()
+                    completed += 1
+                    if progress:
+                        progress(completed, len(unique_candidates), f"Đã đọc {completed}/{len(unique_candidates)}: {unique_candidates[index].name}")
+                    next_index = next(indexes, None)
+                    if next_index is not None:
+                        pending[executor.submit(_read_outcome, unique_candidates[next_index], effective_settings)] = next_index
     records: list[RawRecord] = []
     files_read: list[Path] = []
-    for candidate in unique_candidates:
-        try:
-            records.extend(_read_workbook(candidate, effective_settings))
+    for candidate, (file_records, error) in zip(unique_candidates, results):
+        if error is not None:
+            errors.append(error)
+        else:
+            records.extend(file_records)
             files_read.append(candidate.resolve())
-        except (OSError, ValueError, KeyError, IndexError, xlrd.XLRDError, openpyxl.utils.exceptions.InvalidFileException) as error:
-            errors.append(FileReadError(candidate.resolve(), str(error)))
-        except Exception as error:
-            # A malformed workbook must not prevent independent files from being read.
-            errors.append(FileReadError(candidate.resolve(), f"{type(error).__name__}: {error}"))
 
     return ReadResult(
         records=tuple(records),
@@ -109,6 +135,39 @@ def read_sources(
         errors=tuple(errors),
         skipped_files=tuple(skipped),
     )
+
+
+def _read_outcome(path, settings):
+    try:
+        return _read_workbook(path, settings), None
+    except Exception as error:
+        return (), FileReadError(path.resolve(), f"{type(error).__name__}: {error}")
+
+
+def _excluded(path, settings):
+    resolved = path.resolve()
+    return (_should_skip(path)
+            or resolved.is_relative_to(settings.output_directory.resolve())
+            or (settings.template_path is not None and resolved == settings.template_path.resolve()))
+
+
+def _folder_files(root, settings, skipped, errors):
+    if _excluded(root, settings):
+        skipped.append(root)
+        return
+    def on_error(error):
+        errors.append(FileReadError(Path(error.filename or root), str(error)))
+    for directory, folders, filenames in os.walk(root, followlinks=False, onerror=on_error):
+        allowed = []
+        for name in sorted(folders, key=str.casefold):
+            folder = Path(directory) / name
+            if _excluded(folder, settings) or folder.is_symlink() or getattr(folder, "is_junction", lambda: False)():
+                skipped.append(folder)
+            else:
+                allowed.append(name)
+        folders[:] = allowed
+        for name in sorted(filenames, key=str.casefold):
+            yield Path(directory) / name
 
 
 def _should_skip(path: Path) -> bool:
@@ -138,6 +197,13 @@ def _read_xls(path: Path, settings: Settings) -> list[RawRecord]:
     workbook = xlrd.open_workbook(path, on_demand=True, formatting_info=True)
     try:
         sheet, header_row = _find_xls_sheet(workbook, settings)
+        def header_value(row, column):
+            for r1, r2, c1, c2 in sheet.merged_cells:
+                if r1 <= row < r2 and c1 <= column < c2:
+                    row, column = r1, c1
+                    break
+            return sheet.cell_value(row, column)
+        headers = _source_headers(sheet.ncols, header_row, header_value)
         start_row = max(settings.reader.data_start_row, header_row + 1)
         records: list[RawRecord] = []
         for row_index in range(start_row - 1, sheet.nrows):
@@ -158,6 +224,7 @@ def _read_xls(path: Path, settings: Settings) -> list[RawRecord]:
                         values=values,
                         display_values=displays,
                         source=SourceLocation(str(path.resolve()), sheet.name, row_index + 1),
+                        headers=headers,
                     )
                 )
         return records
@@ -166,9 +233,17 @@ def _read_xls(path: Path, settings: Settings) -> list[RawRecord]:
 
 
 def _read_xlsx(path: Path, settings: Settings) -> list[RawRecord]:
-    workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    workbook = openpyxl.load_workbook(path, read_only=False, data_only=True)
     try:
         sheet, header_row = _find_xlsx_sheet(workbook, settings)
+        def header_value(row, column):
+            row, column = row + 1, column + 1
+            for area in sheet.merged_cells.ranges:
+                if area.min_row <= row <= area.max_row and area.min_col <= column <= area.max_col:
+                    row, column = area.min_row, area.min_col
+                    break
+            return sheet.cell(row, column).value
+        headers = _source_headers(sheet.max_column, header_row, header_value)
         start_row = max(settings.reader.data_start_row, header_row + 1)
         records: list[RawRecord] = []
         for row_index, row in enumerate(
@@ -187,11 +262,25 @@ def _read_xlsx(path: Path, settings: Settings) -> list[RawRecord]:
                         values=values,
                         display_values=displays,
                         source=SourceLocation(str(path.resolve()), sheet.title, row_index),
+                        headers=headers,
                     )
                 )
         return records
     finally:
         workbook.close()
+
+
+def _source_headers(column_count, header_row, value_at):
+    headers = {}
+    for column in range(column_count):
+        parts = []
+        for row in (header_row - 1, header_row):
+            value = value_at(row, column)
+            text = " ".join(str(value or "").split())
+            if text and text not in parts:
+                parts.append(text)
+        headers[_column_name(column + 1)] = " / ".join(parts)
+    return headers
 
 
 def _find_xls_sheet(workbook: xlrd.book.Book, settings: Settings):

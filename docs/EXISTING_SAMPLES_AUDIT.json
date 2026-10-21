@@ -1,0 +1,71 @@
+{
+  "mode": "read_only_existing_files",
+  "hashes_before": {
+    "maubaocao.xls": "fd4211e34c95d4de267267860e20279e50ea8a84f06f4682018894115efec4d1",
+    "dulieumau.xls": "a9cdc8672b65f57ce00a1a2b36940f406fdd45f8c70574d3706692df3d629b58",
+    "config\\approved_workbook_snapshot.json": "32232d4a86227d43439cb9d11c2c29b1fa96dd96e6a847710819561a3c4fa9cf",
+    "output\\testing\\approved_mapping_20261021_010939\\ho_SYNTHETIC-01.xlsx": "3a70da7f28be306bcbef994fe13252c22c8316a87f88bc38d37b329e9a150a45",
+    "output\\testing\\approved_mapping_20261021_010939\\ho_SYNTHETIC-05.xlsx": "0061c401c5363799f23b226c4c4e4c884a09d055c3df6ab6ef2c2de18a6af98c",
+    "output\\testing\\approved_mapping_20261021_010939\\ho_SYNTHETIC-07.xlsx": "170177cdae668397a42f3002822b8250743a174714785127996db2d46bf02e75",
+    "output\\testing\\approved_mapping_20261021_010939\\ho_SYNTHETIC-08.xlsx": "0d72e6991e2f942c8072cf96119f7cc17709c9c85106c0c652695532cb834f96",
+    "output\\testing\\approved_mapping_20261021_010939\\ho_SYNTHETIC-14.xlsx": "d5c42d3bfc54e06a30d06571fa57bb30f1bc4eaf1585570ac9af32bc030aa241",
+    "output\\testing\\approved_mapping_20261021_010939\\ho_SYNTHETIC-15.xlsx": "2e5454e7a09e09a96513b12c6a8513e874db9dceb0dc82d37df1b68a4f2bcafc"
+  },
+  "files": [
+    {
+      "file": "ho_SYNTHETIC-01.xlsx",
+      "members": 1,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-05.xlsx",
+      "members": 5,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-07.xlsx",
+      "members": 7,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-08.xlsx",
+      "members": 8,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-14.xlsx",
+      "members": 14,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-15.xlsx",
+      "members": 15,
+      "cells_compared": 5742,
+      "pages": [
+        1,
+        1
+      ]
+    }
+  ],
+  "failures": [
+    "ho_SYNTHETIC-05.xlsx/Phiếu điều tra 1 mặt: number_format Z2",
+    "ho_SYNTHETIC-07.xlsx/Phiếu điều tra 1 mặt: number_format Z2",
+    "ho_SYNTHETIC-14.xlsx/Phiếu điều tra 1 mặt: number_format Z2"
+  ],
+  "files_unchanged": true
+}

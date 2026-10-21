@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 from household_grouper import GroupingResult, group_households
 from normalizer import NormalizedMember, normalize_records
@@ -21,12 +21,19 @@ class AnalysisResult:
 
 
 def analyze_sources(
-    paths: Iterable[str | Path], settings: Settings | None = None
+    paths: Iterable[str | Path], settings: Settings | None = None,
+    *, progress: Callable[[int, int, str], None] | None = None,
 ) -> AnalysisResult:
     effective_settings = settings or Settings()
-    read_result = read_sources(paths, effective_settings)
+    read_result = read_sources(paths, effective_settings, progress=progress)
+    if progress:
+        progress(0, 1, f"Đang chuẩn hóa {len(read_result.records)} bản ghi...")
     members = normalize_records(read_result.records, effective_settings)
+    if progress:
+        progress(0, 1, f"Đang nhóm {len(members)} nhân khẩu thành hộ...")
     grouping_result = group_households(members)
+    if progress:
+        progress(1, 1, f"Hoàn tất: {len(members)} nhân khẩu, {len(grouping_result.households)} hộ.")
     return AnalysisResult(
         read_result=read_result,
         members=members,

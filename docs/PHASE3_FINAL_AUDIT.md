@@ -1,6 +1,6 @@
 # Báo cáo audit cuối Giai đoạn 3 — Xuất Excel
 
-Ngày kiểm tra: 2026-10-19
+Ngày kiểm tra: 2026-10-20
 
 ## Kết luận
 
@@ -30,6 +30,10 @@ các trường khuyết tật cần cách ghép giá trị; J, U, Z, AS, AT khô
 đích đã xác minh. Cột J đã được đưa vào danh sách cảnh báo chưa ánh xạ.
 Chi tiết từng trường/15 lần cảnh báo ở [MAPPING_AUDIT.md](./MAPPING_AUDIT.md).
 
+Phân loại 36 trường chưa ánh xạ: **A = 0**, **B = 31**, **C = 5**. Nhóm B
+có vùng/nhãn ứng viên nhưng thiếu quy tắc ghi; nhóm C không có ô riêng phù
+hợp. Không bổ sung ánh xạ nào trong lượt kiểm tra này.
+
 ## Phân tích nguồn thật
 
 Đọc chỉ-đọc `dulieumau.xls`: **1 tệp đọc, 0 lỗi, 427 bản ghi, 427 thành
@@ -58,15 +62,17 @@ Lệnh đã chạy:
 .\venv\Scripts\python.exe -m unittest discover -v
 ```
 
-Kết quả: **21 PASS, 0 FAIL**. Mười chín kiểm thử trước vẫn PASS; thêm hai
-kiểm thử preflight cấu hình:
+Kết quả chạy hiện tại: **21 PASS, 0 FAIL, 0 SKIP**. Mười chín kiểm thử
+trước vẫn PASS; thêm hai kiểm thử preflight cấu hình:
 
 1. Thiếu xã/năm học thì xuất bị từ chối trước khi tạo thư mục đầu ra.
 2. Năm học sai định dạng hoặc địa bàn hộ khác cấu hình thì xuất bị từ chối.
 
-Kiểm thử Excel COM trên Windows vẫn mở lại workbook xuất, không báo Repair,
-và xác minh cấu trúc/ô đã ánh xạ. Năm workbook tổng hợp 1, 6, 7, 14, 15
-người trước đó đạt **5 thành công, 0 thất bại**, có 15 cảnh báo về các
+Kiểm thử Excel COM trên Windows mở lại workbook xuất và xác minh cấu
+trúc/ô đã ánh xạ. Trong lượt audit này cũng mở lại 5 workbook tổng hợp
+1/6/7/14/15 người bằng Excel COM ở chế độ chỉ đọc: tất cả mở được, có vùng
+in `$A$1:$AG$87` và phần xác nhận; workbook 15 người có 2 sheet. Năm
+workbook trước đó đạt **5 thành công, 0 thất bại**, với 15 lần cảnh báo về
 trường chưa ánh xạ. Đây không phải là kết quả xuất từ hộ thật.
 
 Test kiểm tra cảnh báo cho diện ưu tiên J khi có dữ liệu; dữ liệu mẫu hiện
@@ -86,6 +92,12 @@ Giá trị năm học được đưa vào nội dung cảnh báo nhưng chưa gh
 trong mẫu: chưa có quy tắc xác định các cột/hàng nguồn phải ứng với từng
 năm. Vì vậy cấu hình hợp lệ vẫn chưa đủ để nghiệm thu nghiệp vụ.
 
+Các khóa cấu hình hiện là `commune_name` và `school_year` trong
+`config/settings.json`; đang để trống/null, không lấy tên xã in sẵn trên
+mẫu làm mặc định. GUI chưa thuộc phạm vi hiện tại; khi triển khai, giao diện
+cần nhập/lưu đúng hai khóa này vào cùng tệp cấu hình và hiển thị lỗi
+validation, không tự điền giá trị.
+
 ## Số hộ xuất thử
 
 | Nhóm | Thành công | Thất bại | Kết luận |
@@ -93,8 +105,22 @@ năm. Vì vậy cấu hình hợp lệ vẫn chưa đủ để nghiệm thu nghi
 | Tổng hợp trên mẫu thật, dữ liệu kiểm thử tổng hợp (1/6/7/14/15 người) | 5 | 0 | PASS kỹ thuật; không phải dữ liệu hộ thật |
 | Hộ từ `dulieumau.xls` | 0 | 0 | Không chạy do cấu hình bắt buộc chưa hợp lệ; không tính là PASS hay FAIL |
 
-Hash nguồn/mẫu được giữ nguyên trong kiểm thử trước; suite hiện tại cũng chỉ
-đọc dữ liệu nguồn và mở mẫu chỉ đọc. Không phát hành workbook hộ thật.
+Trong lượt audit hiện tại, hash trước/sau khi đọc nguồn và mở lại workbook
+đều không đổi: hash mẫu `maubaocao.xls` là
+`89354830a91694e6a9251ccd0b02214c19625c211da683e1a086a74411694aad`;
+hash hiện tại `dulieumau.xls` là
+`5382ace88e435e2c6d2746dc779ed700687c18dee4bce50c7b38cec5eca681c0`.
+Nguồn hiện tại:
+`C:\Users\Admin\Desktop\VSCODE PROJECT\PHOCAPGD\dulieumau.xls`,
+623,104 bytes, mtime 2026-10-19 14:25:01.044 UTC (21:25:01.044 giờ máy).
+Báo cáo đối chiếu cũ ghi hash nguồn
+`65b9aa56e10bfaaa13e0d19d10eebcc09622484c126132677c46711121961f10` trước
+và sau test. Báo cáo cũ chỉ ghi basename/khóa SHA-256; không ghi đường dẫn
+tuyệt đối, kích thước, mtime hay cách thực thi hash. Vì vậy không chứng
+minh được hai digest là cùng đối tượng tệp và không thể xác định nguyên
+nhân/thời điểm chênh lệch. Không suy đoán, không sửa/khôi phục nguồn; xem
+[PHASE3_DECISION_CHECKLIST.md](./PHASE3_DECISION_CHECKLIST.md). Hash mẫu
+vẫn khớp báo cáo cũ. Không phát hành workbook hộ thật.
 
 ## Điều kiện còn thiếu để nghiệm thu
 

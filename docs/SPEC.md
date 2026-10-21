@@ -1,3 +1,9 @@
+> Luồng GUI hiện hành: [đọc tệp/thư mục, đọc song song, xuất chính thức](OFFICIAL_GUI_WORKFLOW.md). Nút xuất một hộ không còn ghi vào thư mục test. Các mô tả nút chưa sẵn sàng/xuất thử bên dưới là ghi chép lịch sử.
+>
+> Quy tắc phân trang hiện hành: [tối đa 7 người/sheet, mỗi sheet một trang A4 ngang, Fit 1×1](PDF_FAILURE_DIAGNOSIS.md). Thay thế 6 người/Zoom 68% và các quy tắc cũ. Không đổi độ rộng cột, chiều cao hàng, font, viền hoặc vùng gộp của mẫu.
+>
+> [Excel hàng loạt và PDF trên GUI](GUI_BATCH_PDF.md) đã được kết nối và kiểm thử; thay thế mô tả các nút chưa sẵn sàng dưới đây. [Mapping được duyệt](APPROVED_MAPPING_20261021.md) vẫn giữ nguyên.
+
 # Đặc tả phần mềm PCGD_HOGIADINH
 
 ## Mục tiêu
@@ -88,15 +94,30 @@ gộp, tổng số trang và số hộ thất bại ở từng bước.
 
 ## Giao diện và tiến trình
 
-- Ba checkbox bật mặc định: **Xuất Excel từng hộ**, **Xuất PDF từng hộ**,
-  **Gộp PDF tổng hợp**.
-- Nếu PDF được chọn nhưng không chọn xuất Excel trong đợt hiện tại, chạy từ
-  các Excel sẵn có đã được chọn/đọc trong thư mục Excel kết quả; không yêu
-  cầu đọc lại dữ liệu nguồn.
-- Thanh tiến trình và nhật ký phải phân biệt giai đoạn Excel, PDF và gộp.
-- Thống kê riêng số Excel thành công/thất bại, PDF thành công/thất bại, số
-  trang bản tổng hợp; báo lỗi mà không chặn các hộ độc lập khác.
-- Hủy/đóng cửa sổ không được làm Excel COM hoặc workbook bỏ mở.
+- GUI hiện tại dùng Tkinter/ttk, tiếng Việt; chạy bằng
+  `.\venv\Scripts\python.exe main.py`. Có chọn tệp `.xls`/`.xlsx` nguồn,
+  biểu mẫu, thư mục kết quả; nhập xã/phường và năm học; lưu các lựa chọn
+  trong `config/settings.json`.
+- Đọc/nhóm dữ liệu chạy trên worker thread; cửa sổ hiển thị thống kê hộ,
+  nhân khẩu, cảnh báo, bảng hộ có cuộn, tìm theo mã/tên chủ hộ, xem thành
+  viên và cảnh báo. Log và thanh tiến trình phản hồi tác vụ. Không khởi
+  chạy Excel COM khi mở ứng dụng.
+- Cửa sổ ánh xạ chỉ hiển thị các trường chưa duyệt, trạng thái và ghi chú;
+  không có thao tác sửa hoặc phê duyệt mapping. Mapping chưa duyệt không
+  được tự ghi.
+- Chỉ có chức năng xuất thử một hộ đã chọn, dùng exporter hiện có và lưu
+  dưới `<thư_mục_kết_quả>/test_output`. Chặn khi thiếu xã/phường, năm học
+  sai, chưa chọn biểu mẫu/thư mục, hoặc dữ liệu đã đọc với xã khác. Người
+  dùng được nhắc rằng workbook chỉ để thử, chưa phải phiếu hoàn chỉnh.
+  Luồng thử cập nhật 70 nhãn năm đã xác minh trên bản sao theo năm cấu hình;
+  luồng exporter mặc định khác không bị bật tùy chọn này.
+- Nút **Xuất tất cả Excel** và **Xuất PDF** được hiển thị nhưng vô hiệu hóa,
+  ghi “Chưa sẵn sàng”. Không có tác vụ nào được gắn vào hai nút này.
+- Khi tác vụ nền đang chạy, từ chối đóng cửa sổ cho đến khi hoàn tất để
+  tránh bỏ dở quá trình Excel COM. GUI chưa có nút hủy tác vụ.
+- Xuất PDF, gộp PDF và xuất hàng loạt là mục tiêu tương lai; checkbox/chức
+  năng trong các phần mô tả quy trình chưa được triển khai và không được
+  hiểu là khả dụng trong bản GUI hiện tại.
 
 ## Nguyên tắc dữ liệu
 
@@ -120,8 +141,28 @@ gộp, tổng số trang và số hộ thất bại ở từng bước.
 - Trước khi xuất Excel, bắt buộc kiểm tra `commune_name` không rỗng và
   `school_year` có dạng `YYYY-YYYY` với hai năm liên tiếp; địa bàn của từng
   hộ phải khớp với cấu hình. Nếu thiếu/sai, dừng trước khi tạo thư mục đầu
-  ra hoặc khởi chạy Excel COM. Năm học cấu hình không tự ghi vào các dòng
-  năm có sẵn của mẫu khi quy tắc ánh xạ dòng chưa được xác nhận.
+  ra hoặc khởi chạy Excel COM.
+- Người dùng đã duyệt **Phương án A – Năm học linh hoạt**, với năm cấu hình
+  tại nhãn đầu tiên của mỗi khối. Trên bản sao mẫu, 5 nhãn lần lượt là
+  `Y-Y+1` đến `Y+4-Y+5`, trong đó Y là năm đầu trong `school_year`. Chỉ
+  được ghi vào 70 ô neo F đã kiểm chứng, giữ nguyên các vùng merge/format
+  và mọi ô khác; không sửa mẫu gốc. Hàm cập nhật riêng nằm ở
+  `src/school_year_labels.py`; hiện chưa được nối vào luồng xuất chính thức.
+- Các năm lịch trong phần ký xác nhận phải giữ nguyên. Việc cập nhật nhãn
+  không xác lập mapping dữ liệu thành viên và không biến năm tốt nghiệp/
+  năm sự kiện thành năm học. Audit 70 ô, kết quả thử hai năm và quy tắc
+  B5–B12 được ghi trong
+  `docs/SCHOOL_YEAR_MAPPING_AUDIT.md`.
+- Người dùng duyệt thử mapping B5–B7 tại dòng năm học thứ nhất: R ghi lớp
+  vào ô neo H (Q chỉ đối chiếu, không ghép); T ghi tên trường vào K (S
+  không ghi); V và X ghi nguyên bậc/năm tốt nghiệp vào P/R, kể cả năm quá
+  khứ. Các cột/dòng khác không thuộc các mapping này không được tự điền.
+  Giá trị bất thường, Q/R không đối chiếu được và cặp V/X thiếu một trường
+  phải cảnh báo, không tự sửa dữ liệu. W và B8–B12 vẫn chưa được duyệt.
+- Theo lựa chọn riêng cho lần thử này, giữ nguyên chính xác cả 70 nhãn năm
+  như mẫu gốc. Vì mẫu gốc bắt đầu bằng `2025-2026` còn cấu hình là
+  `2026-2027`, các workbook thử không chứng minh nhãn năm đã đồng bộ cấu
+  hình; đây là giới hạn cần giải quyết trước khi xuất chính thức.
 - Tạo `output/CANH_BAO_DU_LIEU.xlsx` với số tệp đọc/lỗi, số bản ghi, tổng số
   hộ, số thành viên từng hộ và danh sách các hộ có cảnh báo/mâu thuẫn.
 

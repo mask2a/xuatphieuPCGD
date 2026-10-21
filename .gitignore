@@ -4,6 +4,10 @@ __pycache__/
 *.py[cod]
 output/
 
+# Local reference PDFs and reports containing extracted source records.
+/*.pdf
+docs/CURRENT_SOURCE_VERIFICATION.json
+
 # Source workbooks and templates are local data, not source code.
 *.xls
 *.xlsx

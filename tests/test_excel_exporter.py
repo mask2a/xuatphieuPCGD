@@ -12,10 +12,11 @@ from normalizer import normalize_records
 from reader import RawRecord, SourceLocation
 from settings import Settings
 from src.excel_exporter import ExportConfigurationError, export_households
+from src.school_year_labels import YEAR_LABEL_CELLS
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE = ROOT / "maubaocao.xls"
+TEMPLATE = ROOT / "tempplates/maubaocao.xls" if (ROOT / "tempplates/maubaocao.xls").is_file() else ROOT / "maubaocao.xls"
 MAPPING = ROOT / "config" / "template_mapping.json"
 COMMUNE = "Xã Kiểm thử"
 
@@ -30,6 +31,7 @@ def make_household(
     head_names=None,
     residences=None,
     unmapped_fields=None,
+    source_values_by_member=None,
     commune_name=COMMUNE,
 ):
     records = []
@@ -69,6 +71,7 @@ def make_household(
             "AW": phone,
         }
         values.update(unmapped_fields or {})
+        values.update((source_values_by_member or {}).get(index, {}))
         displays = {
             column: "" if value is None else str(value)
             for column, value in values.items()
@@ -100,7 +103,85 @@ def write_export_settings(directory, *, commune_name=COMMUNE, school_year="2025-
     return path
 
 
+def _read_template_year_labels():
+    import pythoncom
+    import win32com.client
+
+    pythoncom.CoInitialize()
+    excel = win32com.client.DispatchEx("Excel.Application")
+    excel.Visible = False
+    excel.DisplayAlerts = False
+    workbook = None
+    try:
+        workbook = excel.Workbooks.Open(
+            str(TEMPLATE),
+            UpdateLinks=0,
+            ReadOnly=True,
+            AddToMru=False,
+            IgnoreReadOnlyRecommended=True,
+        )
+        sheet = workbook.Worksheets.Item(1)
+        return {
+            address: sheet.Range(address).Value2
+            for address in YEAR_LABEL_CELLS
+        }
+    finally:
+        if workbook is not None:
+            workbook.Close(SaveChanges=False)
+        excel.Quit()
+        pythoncom.CoUninitialize()
+
+
 class ExcelExporterTests(unittest.TestCase):
+    def test_gui_test_export_applies_configured_year_labels_to_the_copy(self):
+        household = make_household("GUI-TEST", 1)
+        template_hash_before = hashlib.sha256(TEMPLATE.read_bytes()).digest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "output"
+            report = export_households(
+                (household,),
+                TEMPLATE,
+                output,
+                MAPPING,
+                settings_path=write_export_settings(
+                    directory,
+                    school_year="2026-2027",
+                ),
+                apply_school_year_labels=True,
+            )
+
+            self.assertEqual(report.success_count, 1)
+            self.assertEqual(report.failure_count, 0)
+            workbook = load_workbook(report.successes[0].path, data_only=True)
+            try:
+                sheet = workbook["Phiếu điều tra 1 mặt"]
+                expected = (
+                    "2025-2026",
+                    "2026-2027",
+                    "2027-2028",
+                    "2028-2029",
+                    "2029-2030",
+                )
+                self.assertEqual(
+                    tuple(sheet[address].value for address in YEAR_LABEL_CELLS[:5]),
+                    expected,
+                )
+                for slot in range(14):
+                    addresses = YEAR_LABEL_CELLS[slot * 5:(slot + 1) * 5]
+                    self.assertEqual(
+                        tuple(sheet[address].value for address in addresses),
+                        expected,
+                    )
+                self.assertEqual(len(sheet.merged_cells.ranges), 442)
+            finally:
+                workbook.close()
+
+        self.assertEqual(
+            hashlib.sha256(TEMPLATE.read_bytes()).digest(),
+            template_hash_before,
+        )
+
     def test_exports_short_full_and_supplementary_households_from_real_template(self):
         if not TEMPLATE.exists():
             self.skipTest("The verified source template is not present")
@@ -175,7 +256,7 @@ class ExcelExporterTests(unittest.TestCase):
                     )
                     self.assertEqual(len(sheet.merged_cells.ranges), 442)
                     if count <= 6:
-                        first_hidden = (9, 14, 19, 24, 29, 34, 39)[count]
+                        first_hidden = 47
                         self.assertTrue(sheet.row_dimensions[first_hidden].hidden)
                         self.assertEqual(sheet.print_area, "'Phiếu điều tra 1 mặt'!$A$1:$AG$87")
                         self.assertTrue(sheet.sheet_properties.pageSetUpPr.fitToPage)
@@ -188,12 +269,12 @@ class ExcelExporterTests(unittest.TestCase):
                     self.assertEqual(sheet["B13"].value, "Cha, mẹ, Ng đỡ đầu: Cha mẹ")
                     self.assertEqual(sheet["A1"].font.name, "Arial")
                     self.assertTrue(sheet["A1"].font.bold)
-                    self.assertEqual(sheet["C12"].font.name, "Wingdings")
+                    self.assertEqual(sheet["C12"].font.name, "Segoe UI Symbol")
                     self.assertTrue(sheet["B9"].border.bottom.style)
                     self.assertTrue(sheet["AA82"].value.startswith("XÁC NHẬN CỦA UBND"))
                     self.assertFalse(workbook._external_links)
                     for member_index in range(count):
-                        page_index, slot_index = divmod(member_index, 14)
+                        page_index, slot_index = divmod(member_index, 7)
                         member_sheet = workbook.worksheets[page_index]
                         start_row = (9, 14, 19, 24, 29, 34, 39, 47, 52, 57, 62, 67, 72, 77)[slot_index]
                         self.assertEqual(
@@ -201,11 +282,11 @@ class ExcelExporterTests(unittest.TestCase):
                             f"Họ{member_index + 1} Tên{member_index + 1}",
                         )
                     if count == 15:
-                        self.assertEqual(len(workbook.worksheets), 2)
-                        supplement = workbook.worksheets[1]
+                        self.assertEqual(len(workbook.worksheets), 3)
+                        supplement = workbook.worksheets[2]
                         self.assertEqual(supplement["A9"].value, 15)
                         self.assertEqual(supplement["B9"].value, "Họ15 Tên15")
-                        self.assertTrue(supplement.row_dimensions[14].hidden)
+                        self.assertTrue(supplement.row_dimensions[47].hidden)
                 finally:
                     workbook.close()
 
@@ -227,6 +308,21 @@ class ExcelExporterTests(unittest.TestCase):
                     "J": "Diện ưu tiên",
                     "M": "Tổ 7",
                     "Q": "1",
+                    "R": "Lớp 1",
+                    "S": "Huyện thử",
+                    "T": "Trường thử",
+                    "V": "THCS",
+                    "W": "Bổ túc",
+                    "X": "2025",
+                    "Y": "Nghề",
+                    "AA": "2026",
+                    "AB": "Đã học xong",
+                    "AC": "2025",
+                    "AD": "Lớp 5",
+                    "AE": "2024",
+                    "AF": "Lớp 6",
+                    "AG": "Lớp 5",
+                    "AH": "Mức 1",
                     "AX": "Ghi chú",
                 },
             ),
@@ -259,19 +355,276 @@ class ExcelExporterTests(unittest.TestCase):
                 )
                 conflict_sheet = conflict["Phiếu điều tra 1 mặt"]
                 self.assertTrue(conflict_sheet["H3"].value.endswith("_" * 10))
-                self.assertIn("q Thường trú", conflict_sheet["Z2"].value)
+                self.assertNotIn("X", conflict_sheet["Z2"].value)
+                self.assertEqual(conflict_sheet["Z2"].value.count("☒"), 0)
+                self.assertEqual(conflict_sheet["Z2"].value.count("☐"), 2)
+                self.assertIn("HOUSEHOLD_RESIDENCE_NOT_EXPORTED", {w.code for w in by_code["CONFLICT"].warnings})
                 conflict_codes = {
                     warning.code for warning in by_code["CONFLICT"].warnings
                 }
                 self.assertIn("HOUSEHOLD_HEAD_NAME_CONFLICT", conflict_codes)
                 self.assertIn("HOUSEHOLD_RESIDENCE_CONFLICT", conflict_codes)
-                self.assertIn("UNMAPPED_ADDRESS", conflict_codes)
-                self.assertIn("UNMAPPED_GRADE_GROUP", conflict_codes)
-                self.assertIn("UNMAPPED_NOTES", conflict_codes)
+                self.assertNotIn("UNMAPPED_ADDRESS", conflict_codes)
+                self.assertIn("B5_GRADE_CLASS_NOT_COMPARABLE", conflict_codes)
+                self.assertNotIn("UNMAPPED_NOTES", conflict_codes)
                 self.assertIn("UNMAPPED_PRIORITY_CATEGORY", conflict_codes)
+                self.assertEqual(conflict_sheet["H9"].value, "Lớp 1")
+                self.assertEqual(conflict_sheet["K9"].value, "Trường thử")
+                self.assertEqual(conflict_sheet["P9"].value, "THCS")
+                self.assertEqual(conflict_sheet["R9"].value, "2025")
+                self.assertEqual(
+                    tuple(
+                        conflict_sheet[address].value
+                        for address in (
+                            "Q9",
+                            "S9",
+                            "T9",
+                            "V9",
+                            "W9",
+                            "X9",
+                            "Y9",
+                            "Z9",
+                            "AA9",
+                            "AB9",
+                        )
+                    ),
+                    (None,) * 10,
+                )
             finally:
                 missing.close()
                 conflict.close()
+
+    def test_approved_education_mapping_uses_only_first_member_row(self):
+        education_values = (
+            {
+                0: {
+                    "Q": "5",
+                    "R": "5A1",
+                    "T": "Trường giả lập Tiểu học",
+                    "V": "MN",
+                    "X": "2018-2019",
+                },
+                1: {
+                    "Q": "3-4 tuổi",
+                    "R": "M4**",
+                    "T": "1982-1983",
+                },
+                2: {
+                    "F": 1970,
+                    "V": "THPT",
+                    "X": "1998-1999",
+                },
+                4: {
+                    "Q": "8",
+                    "R": "7A1",
+                    "T": "Trường giả lập THCS",
+                },
+                5: {
+                    "Q": "6",
+                    "R": "6A4",
+                    "T": "Trường giả lập số 6",
+                    "V": "TH",
+                },
+            },
+            {
+                6: {
+                    "Q": "?",
+                    "R": "CHUYỂN",
+                    "T": "1982-1983",
+                    "X": "2005-2006",
+                }
+            },
+            {
+                13: {
+                    "Q": "12",
+                    "R": "12A1",
+                    "T": "Trường giả lập số 14",
+                    "V": "THPT",
+                    "X": "2020-2021",
+                }
+            },
+        )
+        counts = (6, 7, 14)
+        households = tuple(
+            make_household(
+                f"SYNTHETIC-{count:02}",
+                count,
+                source_values_by_member=values,
+            )
+            for count, values in zip(counts, education_values, strict=True)
+        )
+        expected_label_values = {address: f"{2025 + index % 5}-{2026 + index % 5}" for index, address in enumerate(YEAR_LABEL_CELLS)}
+        template_hash = hashlib.sha256(TEMPLATE.read_bytes()).digest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "education-mapping"
+            report = export_households(
+                households,
+                TEMPLATE,
+                output,
+                MAPPING,
+                settings_path=write_export_settings(
+                    directory,
+                    school_year="2026-2027",
+                ),
+            )
+            self.assertEqual(report.success_count, 3)
+            self.assertEqual(report.failure_count, 0)
+            by_code = {item.household_code: item for item in report.successes}
+            self.assertEqual(
+                {code: item.member_count for code, item in by_code.items()},
+                {
+                    "SYNTHETIC-06": 6,
+                    "SYNTHETIC-07": 7,
+                    "SYNTHETIC-14": 14,
+                },
+            )
+
+            warning_codes = {
+                code: {warning.code for warning in item.warnings}
+                for code, item in by_code.items()
+            }
+            self.assertIn(
+                "B5_CLASS_VALUE_REQUIRES_REVIEW",
+                warning_codes["SYNTHETIC-06"],
+            )
+            self.assertIn(
+                "B5_GRADE_CLASS_CONFLICT",
+                warning_codes["SYNTHETIC-06"],
+            )
+            self.assertIn(
+                "B6_SCHOOL_NAME_LOOKS_LIKE_YEAR",
+                warning_codes["SYNTHETIC-06"],
+            )
+            self.assertIn(
+                "B7_GRADUATION_PAIR_INCOMPLETE",
+                warning_codes["SYNTHETIC-06"],
+            )
+            self.assertIn(
+                "B5_CLASS_VALUE_REQUIRES_REVIEW",
+                warning_codes["SYNTHETIC-07"],
+            )
+            self.assertIn(
+                "B5_GRADE_CLASS_NOT_COMPARABLE",
+                warning_codes["SYNTHETIC-07"],
+            )
+            self.assertIn(
+                "B6_SCHOOL_NAME_LOOKS_LIKE_YEAR",
+                warning_codes["SYNTHETIC-07"],
+            )
+            self.assertIn(
+                "B7_GRADUATION_PAIR_INCOMPLETE",
+                warning_codes["SYNTHETIC-07"],
+            )
+            self.assertNotIn(
+                "UNMAPPED_CLASS_NAME",
+                warning_codes["SYNTHETIC-06"],
+            )
+            self.assertNotIn(
+                "UNMAPPED_SCHOOL_NAME",
+                warning_codes["SYNTHETIC-06"],
+            )
+
+            import pythoncom
+            import win32com.client
+
+            pythoncom.CoInitialize()
+            excel = win32com.client.DispatchEx("Excel.Application")
+            excel.Visible = False
+            excel.DisplayAlerts = False
+            excel.EnableEvents = False
+            workbook = None
+            try:
+                checks = {
+                    "SYNTHETIC-06": {
+                        0: ("5A1", "Trường giả lập Tiểu học", "MN", "2018-2019"),
+                        1: ("M4**", "1982-1983", None, None),
+                        2: (None, None, "THPT", "1998-1999"),
+                        3: (None, None, None, None),
+                        4: ("7A1", "Trường giả lập THCS", None, None),
+                        5: ("6A4", "Trường giả lập số 6", "TH", None),
+                    },
+                    "SYNTHETIC-07": {
+                        6: ("CHUYỂN", "1982-1983", None, "2005-2006")
+                    },
+                    "SYNTHETIC-14": {
+                        13: ("12A1", "Trường giả lập số 14", "THPT", "2020-2021")
+                    },
+                }
+                for code, member_expectations in checks.items():
+                    workbook = excel.Workbooks.Open(
+                        str(by_code[code].path),
+                        UpdateLinks=0,
+                        ReadOnly=True,
+                        AddToMru=False,
+                        IgnoreReadOnlyRecommended=True,
+                    )
+                    sheet = workbook.Worksheets.Item("Phiếu điều tra 1 mặt")
+                    for member_index, values in member_expectations.items():
+                        page_index, slot_index = divmod(member_index, 7)
+                        sheet = workbook.Worksheets.Item(page_index + 1)
+                        start_row = (9, 14, 19, 24, 29, 34, 39)[slot_index]
+                        for column, expected_value in zip(
+                            ("H", "K", "P", "R"),
+                            values,
+                            strict=True,
+                        ):
+                            self.assertEqual(
+                                sheet.Range(f"{column}{start_row}").Value2,
+                                expected_value,
+                                f"{code} member {member_index + 1} {column}",
+                            )
+                        self.assertEqual(
+                            sheet.Range(f"B{start_row}").Value2,
+                            f"Họ{member_index + 1} Tên{member_index + 1}",
+                        )
+                        for offset in range(1, 5):
+                            for column in ("H", "K", "P", "R"):
+                                self.assertIsNone(
+                                    sheet.Range(
+                                        f"{column}{start_row + offset}"
+                                    ).Value2,
+                                    f"Unexpected education value at "
+                                    f"{column}{start_row + offset}",
+                                )
+                    self.assertEqual(
+                        {
+                            address: sheet.Range(address).Value2
+                            for address in YEAR_LABEL_CELLS
+                        },
+                        expected_label_values,
+                    )
+                    self.assertEqual(
+                        sheet.PageSetup.PrintArea,
+                        "$A$1:$AG$87",
+                    )
+                    saved_workbook = load_workbook(
+                        by_code[code].path,
+                        read_only=False,
+                    )
+                    try:
+                        self.assertEqual(
+                            len(
+                                saved_workbook[
+                                    "Phiếu điều tra 1 mặt"
+                                ].merged_cells.ranges
+                            ),
+                            442,
+                        )
+                    finally:
+                        saved_workbook.close()
+                    workbook.Close(SaveChanges=False)
+                    workbook = None
+            finally:
+                if workbook is not None:
+                    workbook.Close(SaveChanges=False)
+                excel.Quit()
+                pythoncom.CoUninitialize()
+
+        self.assertEqual(
+            hashlib.sha256(TEMPLATE.read_bytes()).digest(),
+            template_hash,
+        )
 
     def test_invalid_filename_characters_are_sanitized_and_existing_files_are_not_overwritten(self):
         first = make_household("A/B", 1)
@@ -365,14 +718,14 @@ class ExcelExporterTests(unittest.TestCase):
                 )
             self.assertFalse((Path(directory) / "output").exists())
 
-    def test_export_rejects_missing_commune_and_school_year_before_creating_output(self):
+    def test_export_rejects_missing_commune_before_creating_output(self):
         household = make_household("NO-CONFIG", 1)
 
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "not-created"
             with self.assertRaisesRegex(
                 ExportConfigurationError,
-                "commune_name.*school_year",
+                "commune_name",
             ):
                 export_households(
                     (household,),

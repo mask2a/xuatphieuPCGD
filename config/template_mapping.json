@@ -1,6 +1,21 @@
 {
   "template_sheet": "Phiếu điều tra 1 mặt",
-  "member_start_rows": [9, 14, 19, 24, 29, 34, 39, 47, 52, 57, 62, 67, 72, 77],
+  "member_start_rows": [
+    9,
+    14,
+    19,
+    24,
+    29,
+    34,
+    39,
+    47,
+    52,
+    57,
+    62,
+    67,
+    72,
+    77
+  ],
   "member_rows_per_slot": 5,
   "confirmation_start_row": 82,
   "confirmation_end_row": 87,
@@ -10,7 +25,7 @@
   "last_column_number": 33,
   "full_form_zoom": 68,
   "expected_merge_count": 442,
-  "short_form_max_members": 6,
+  "short_form_max_members": 7,
   "fixed_fields": {
     "commune_name": {
       "cell": "A1",
@@ -77,45 +92,168 @@
       "label": "Cha, mẹ, Ng đỡ đầu:"
     }
   },
-  "unmapped_household_fields": {
-    "address": "Cột M rộng nghĩa hơn nhãn Xóm; chưa xác nhận quy tắc hiển thị.",
-    "residence": "Ô checkbox và ký tự đánh dấu chưa được xác minh; không tự chọn."
+  "approved_member_fields": {
+    "class_name": {
+      "source": "class_name",
+      "comparison_source": "grade_group",
+      "cells_by_slot": [
+        "H9",
+        "H14",
+        "H19",
+        "H24",
+        "H29",
+        "H34",
+        "H39",
+        "H47",
+        "H52",
+        "H57",
+        "H62",
+        "H67",
+        "H72",
+        "H77"
+      ],
+      "merge_areas_by_slot": [
+        "H9:J9",
+        "H14:J14",
+        "H19:J19",
+        "H24:J24",
+        "H29:J29",
+        "H34:J34",
+        "H39:J39",
+        "H47:J47",
+        "H52:J52",
+        "H57:J57",
+        "H62:J62",
+        "H67:J67",
+        "H72:J72",
+        "H77:J77"
+      ],
+      "review_values": [
+        "M2*",
+        "M3**",
+        "M4**",
+        "CHUYỂN",
+        "CHUYỂN BN",
+        "CN Ô TÔ",
+        "Nghề",
+        "THPT"
+      ]
+    },
+    "school_name": {
+      "source": "school_name",
+      "cells_by_slot": [
+        "K9",
+        "K14",
+        "K19",
+        "K24",
+        "K29",
+        "K34",
+        "K39",
+        "K47",
+        "K52",
+        "K57",
+        "K62",
+        "K67",
+        "K72",
+        "K77"
+      ],
+      "merge_areas_by_slot": [
+        "K9:O9",
+        "K14:O14",
+        "K19:O19",
+        "K24:O24",
+        "K29:O29",
+        "K34:O34",
+        "K39:O39",
+        "K47:O47",
+        "K52:O52",
+        "K57:O57",
+        "K62:O62",
+        "K67:O67",
+        "K72:O72",
+        "K77:O77"
+      ]
+    },
+    "graduation_level": {
+      "source": "graduation_level",
+      "cells_by_slot": [
+        "P9",
+        "P14",
+        "P19",
+        "P24",
+        "P29",
+        "P34",
+        "P39",
+        "P47",
+        "P52",
+        "P57",
+        "P62",
+        "P67",
+        "P72",
+        "P77"
+      ],
+      "merge_areas_by_slot": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "graduation_year": {
+      "source": "graduation_year",
+      "cells_by_slot": [
+        "R9",
+        "R14",
+        "R19",
+        "R24",
+        "R29",
+        "R34",
+        "R39",
+        "R47",
+        "R52",
+        "R57",
+        "R62",
+        "R67",
+        "R72",
+        "R77"
+      ],
+      "merge_areas_by_slot": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
   },
+  "unmapped_household_fields": {},
   "unmapped_member_fields": {
     "priority_category": "Nguồn cột J là diện ưu tiên; mẫu không có trường riêng đã xác minh.",
-    "female": "Ký tự q dùng Wingdings; ký hiệu chọn giới tính chưa được xác minh.",
     "residence_status": "Các giá trị cột P chưa được đối chiếu với nhãn AF.",
-    "grade_group": "Nguồn không gắn khối học với một trong 5 năm trên phiếu.",
-    "class_name": "Nguồn không gắn lớp học với một trong 5 năm trên phiếu.",
     "school_district": "Chưa xác nhận cách kết hợp huyện và tên trường.",
-    "school_name": "Chưa xác nhận cách kết hợp huyện và tên trường.",
     "school_code": "Mẫu không có ô mã trường riêng.",
-    "graduation_level": "Chưa xác nhận dòng năm học đích.",
     "supplementary_education": "Chưa xác nhận dòng năm học đích.",
-    "graduation_year": "Chưa xác nhận dòng năm học đích.",
-    "vocational_graduation_level": "Chưa xác nhận dòng năm học đích.",
     "diploma_number": "Mẫu không có ô số bằng riêng.",
-    "vocational_graduation_year": "Chưa xác nhận dòng năm học đích.",
-    "completed_education": "Chưa xác nhận dòng năm học đích.",
-    "completed_education_year": "Chưa xác nhận dòng năm học đích.",
-    "dropped_out_class": "Chưa xác nhận dòng năm học đích.",
-    "dropped_out_year": "Chưa xác nhận dòng năm học đích.",
-    "currently_studying_class": "Chưa xác nhận dòng năm học đích.",
-    "completed_class": "Chưa xác nhận dòng năm học đích.",
-    "reliteracy_level": "Chưa xác nhận dòng năm học đích.",
-    "disability_mobility": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_hearing_speech": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_vision": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_neurological": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_intellectual": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_learning": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_autism": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_other": "Nhiều trường nguồn dùng chung một ô Loại trên mẫu.",
-    "disability_certified": "Chưa xác nhận dòng năm học đích.",
-    "learning_capacity": "Chưa xác nhận dòng năm học đích.",
-    "special_circumstances": "Mẫu không có trường hoàn cảnh đặc biệt.",
-    "special_circumstances_details": "Mẫu không có trường chi tiết hoàn cảnh.",
-    "notes": "Chưa xác nhận dòng năm học để đặt ghi chú."
+    "special_circumstances": "Mẫu không có trường hoàn cảnh đặc biệt."
   },
-  "school_year_policy": "Các dòng năm học có sẵn trong mẫu được giữ nguyên; trường nguồn chưa được ánh xạ theo năm học. Cần xác nhận quy tắc trước khi cập nhật các dòng này."
+  "school_year_policy": "Nhãn cố định 2025-2026 đến 2029-2030; dữ liệu chỉ ghi trên dòng năm học thứ nhất; không đổi năm ký xác nhận."
 }

@@ -1,0 +1,67 @@
+{
+  "mode": "read_only_existing_files",
+  "hashes_before": {
+    "maubaocao.xls": "fd4211e34c95d4de267267860e20279e50ea8a84f06f4682018894115efec4d1",
+    "dulieumau.xls": "a9cdc8672b65f57ce00a1a2b36940f406fdd45f8c70574d3706692df3d629b58",
+    "config\\approved_workbook_snapshot.json": "32232d4a86227d43439cb9d11c2c29b1fa96dd96e6a847710819561a3c4fa9cf",
+    "output\\testing\\approved_mapping_20261021_012426\\ho_SYNTHETIC-01.xlsx": "6d0e2e8fa2117344a8773542bf3a0f61f98dd0b23f70049e7c6ee68d63b20844",
+    "output\\testing\\approved_mapping_20261021_012426\\ho_SYNTHETIC-05.xlsx": "6e4bc305e081d144c711df1bf221d6bcabfa5430dd9297a273b934a105037028",
+    "output\\testing\\approved_mapping_20261021_012426\\ho_SYNTHETIC-07.xlsx": "47bfd19a50a26141e8643412c6debca256181dae5d377b034e648dab9b254a99",
+    "output\\testing\\approved_mapping_20261021_012426\\ho_SYNTHETIC-08.xlsx": "cec6da65a86fa84e9adca9cece9254324a4209225406835651b693c55ef51417",
+    "output\\testing\\approved_mapping_20261021_012426\\ho_SYNTHETIC-14.xlsx": "346954d4b1ca99ea1f569f9b2868c10b313b6f6dd959c3aa1060dee10c737cd7",
+    "output\\testing\\approved_mapping_20261021_012426\\ho_SYNTHETIC-15.xlsx": "e504a64a05b316f51965be2000c0e01b922a89472d7ccaabf22d2b2b3dd18c75"
+  },
+  "files": [
+    {
+      "file": "ho_SYNTHETIC-01.xlsx",
+      "members": 1,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-05.xlsx",
+      "members": 5,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-07.xlsx",
+      "members": 7,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-08.xlsx",
+      "members": 8,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-14.xlsx",
+      "members": 14,
+      "cells_compared": 2871,
+      "pages": [
+        1
+      ]
+    },
+    {
+      "file": "ho_SYNTHETIC-15.xlsx",
+      "members": 15,
+      "cells_compared": 5742,
+      "pages": [
+        1,
+        1
+      ]
+    }
+  ],
+  "failures": [],
+  "files_unchanged": true
+}

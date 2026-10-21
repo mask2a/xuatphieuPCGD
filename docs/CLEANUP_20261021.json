@@ -1,0 +1,448 @@
+﻿{
+    "Date":  "2026-10-21",
+    "Deleted":  [
+                    {
+                        "RelativePath":  "output/testing",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\testing",
+                        "Files":  153,
+                        "Bytes":  21001186
+                    },
+                    {
+                        "RelativePath":  "output/test_output",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\test_output",
+                        "Files":  3,
+                        "Bytes":  86299
+                    },
+                    {
+                        "RelativePath":  "output/diagnostics",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\diagnostics",
+                        "Files":  40,
+                        "Bytes":  2359394
+                    },
+                    {
+                        "RelativePath":  "output/pdf_recovery",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf_recovery",
+                        "Files":  243,
+                        "Bytes":  44622198
+                    },
+                    {
+                        "RelativePath":  "output/excel/kiem_thu_giai_doan_3",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\kiem_thu_giai_doan_3",
+                        "Files":  6,
+                        "Bytes":  164449
+                    },
+                    {
+                        "RelativePath":  "output/excel/dot_0bb4449c1d834c20bb73dff73e3855ae",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_0bb4449c1d834c20bb73dff73e3855ae",
+                        "Files":  39,
+                        "Bytes":  1117757
+                    },
+                    {
+                        "RelativePath":  "output/excel/dot_3eeb97836ea44f8396e173ac88374ee5",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_3eeb97836ea44f8396e173ac88374ee5",
+                        "Files":  39,
+                        "Bytes":  1117728
+                    },
+                    {
+                        "RelativePath":  "output/excel/dot_99931858e2554fe9b52e8da1a6effc83",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_99931858e2554fe9b52e8da1a6effc83",
+                        "Files":  121,
+                        "Bytes":  3516516
+                    },
+                    {
+                        "RelativePath":  "output/excel/dot_bad3bcd5f34f40a1a758b83ee94774f1",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_bad3bcd5f34f40a1a758b83ee94774f1",
+                        "Files":  2,
+                        "Bytes":  29403
+                    },
+                    {
+                        "RelativePath":  "output/excel/dot_c1d65b84903d4913997b9c5b0bb99248",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_c1d65b84903d4913997b9c5b0bb99248",
+                        "Files":  2,
+                        "Bytes":  29614
+                    },
+                    {
+                        "RelativePath":  "tmp",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\tmp",
+                        "Files":  1,
+                        "Bytes":  282691
+                    },
+                    {
+                        "RelativePath":  "__pycache__",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\__pycache__",
+                        "Files":  8,
+                        "Bytes":  139730
+                    },
+                    {
+                        "RelativePath":  "src/__pycache__",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\src\\__pycache__",
+                        "Files":  7,
+                        "Bytes":  128326
+                    },
+                    {
+                        "RelativePath":  "scripts/__pycache__",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\scripts\\__pycache__",
+                        "Files":  3,
+                        "Bytes":  31775
+                    },
+                    {
+                        "RelativePath":  "tests/__pycache__",
+                        "AbsolutePath":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\tests\\__pycache__",
+                        "Files":  12,
+                        "Bytes":  170654
+                    }
+                ],
+    "DeletedFileCount":  679,
+    "DeletedBytes":  74797720,
+    "RetainedOfficialDirectories":  [
+                                        "output/excel/dot_63c82a742cb749d58d28cf05cf5fdcbc",
+                                        "output/pdf/dot_599268997abf4ab78702846770207ff8"
+                                    ],
+    "ProtectedUnchanged":  true,
+    "ProtectedHashes":  [
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\12..10 - PHỔ CẬP TDP 18 (1).pdf",
+                                "Hash":  "873E86E7EB86C60AF1DE3A035D0D5DB40AC3258176C3C6945BE152491797DB3F"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\12..10 - PHỔ CẬP TDP 18 (1).xls",
+                                "Hash":  "6311D6EBB04A266F9FA0DF930D5FE6AB5310F5923459A7B1407A9A96C2FF8BBD"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\dulieumau.xls",
+                                "Hash":  "38C8E8865A9741D4C0BD9A284F70C2EDEE147A422BDB722C3A1D706D885A58E7"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\maubaocao.xls",
+                                "Hash":  "DABB4A0F6D718634AE98076DAB34BB3E6D2EC7EB980728FC934FC967016C14A8"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\config\\settings.json",
+                                "Hash":  "350BE24A2AF9CC8223698D2C42032C932F9DD5985ADF3495CCFEC342F45809F9"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\config\\template_mapping.json",
+                                "Hash":  "7FCC68B04AA07172EBC08DFF49CF3B3F9F98F8CA9C109388AA139DC6AF791558"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\config\\approved_workbook_snapshot.json",
+                                "Hash":  "32232D4A86227D43439CB9D11C2C29B1FA96DD96E6A847710819561A3C4FA9CF"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\EXPORT_REPORT.json",
+                                "Hash":  "1E77704EC6373E1C973DADE79B359EEEC84C694924469FE970BEB079A1944306"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 01.xlsx",
+                                "Hash":  "AC1C071613C7E3F851147DB4670DD94E40C9CF94571D45B08476363869A2604E"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 02.xlsx",
+                                "Hash":  "56D20700F93AA115CBFDA3172F5C740E3883B6B4E2F563195B26D8A204492F21"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 03.xlsx",
+                                "Hash":  "D2851A16A79C417841CF9C220BCA61799FF1C73D50F2F9F854C4B88542F42802"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 04.xlsx",
+                                "Hash":  "C10FF7E80F94D6E6034949FE3F7B0E7BDDDCC877246B28A0810529983506DC96"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 05.xlsx",
+                                "Hash":  "2E221DF98349C1E8A9B3EBE8E7DD1F1DDAE57CE32BD0C7542F60E70D5DBB1622"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 06.xlsx",
+                                "Hash":  "9052F3F185A24A86C3EAF94F854219DDCEBC2D5A2A25A5D53D0E1061E44D80B9"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 07.xlsx",
+                                "Hash":  "9C8FA09D5B4E064E87A2A983F4DDD3245E42721620F763F35EE5A3D5CAD52F2C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 08.xlsx",
+                                "Hash":  "ED4E8F3C3C9157B8935B59C58075FECAB2B4B90B7CA4F3296E3F1E74B9E2A595"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 09.xlsx",
+                                "Hash":  "145294ABF574F437A80D0A4FF5BDD66D84DDFE0A826F6FFA51E19BCE2F60FF31"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 10.xlsx",
+                                "Hash":  "F56F613A99F10662D40FA29223A5F862DC615419C07586C6836540D8EC3C8DD9"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 109.xlsx",
+                                "Hash":  "A1E444355964AC4EE900EE3D3FE86020B3D61AC0C33A1A14F055125F9DD5E651"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 11.xlsx",
+                                "Hash":  "4401F25CC69C200B7B84FC5F38F17BB6B155F904DF167CF1E619E3296D3AFFF0"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 110.xlsx",
+                                "Hash":  "FF8A04569BC9FFB86471F1C804A7F9834FD53901B52E97355A65F8EA3BAAA05C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 12.xlsx",
+                                "Hash":  "80FE75A709876FB7D5A205C9B095794D8634815C138D3649FA07E60C3A21EACE"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 13.xlsx",
+                                "Hash":  "A5CD4CA6FC989D7CE5E81AF9CFCD825BA46015464A487B496DB816942FC48957"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 14.xlsx",
+                                "Hash":  "8DEB16E25122F43715AA9B4CD2132D02AD3D3ED6908DA2EEA43387AB5B82F13C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 15.xlsx",
+                                "Hash":  "004EE09A604784A2AFC5703A5577D1E3FD68FB985F70B156CA7B5346F4A97464"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 16.xlsx",
+                                "Hash":  "863C6BD4A52A71F0BB785B6F8F9D7E4DDDDFBC41D2738D48776C4B5F1D00F197"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 17.xlsx",
+                                "Hash":  "FB40C0873621D4AF0896306A223AD98D97DDEB991FC802788D30E333772F4AC9"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 18.xlsx",
+                                "Hash":  "BC0D3DC41A8CBCE7F139FBCEB476C9BB308639504569C80058544485FB699CF0"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 19.xlsx",
+                                "Hash":  "AE947949263330F29E6CF790A82C80DA40FB4038441A6211083DC119DDEA9DEF"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 20.xlsx",
+                                "Hash":  "9301B00EB4DAC09CB7C7BDCD683AA8C2352892474798092E361B7B255C569CC3"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 21.xlsx",
+                                "Hash":  "D6AAD683F9FBD263C8713E7643892F51D9B5A46E7344F16CAEB0630B23115E54"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 23.xlsx",
+                                "Hash":  "2337B308C2CC42A956627F12D36748C9A03194F347D575903D20D1D7C1D133BF"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 27.xlsx",
+                                "Hash":  "FDA5CA9EB501A5E4C0B42F59DB5E5B66B7F6727983C4AA9A65FA65D7F6BE9982"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 28.xlsx",
+                                "Hash":  "AB72D29A923B284D90152C7020CC7E85FA37F42833AB94702BE8961811A89D0C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 30.xlsx",
+                                "Hash":  "D5F825B2839DF4FC7129657E1FBE5ADF0825485925E1F282F368526397850639"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 31.xlsx",
+                                "Hash":  "60019F072A5D4698A58BB634B67B11C1E45EB2AC9A736ABEA19A0D5D99676DC5"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_ 32.xlsx",
+                                "Hash":  "3E651CF9C38911414E3F85B81FA84919A4AC40F35BE1EA9C59898E7211A1F6AD"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_12.xlsx",
+                                "Hash":  "1F03925D13224EE97E0BC23CADE9DE3EC16985591D1043C9C69AFA7E8C96D92F"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_14.xlsx",
+                                "Hash":  "45F55B6BE578BDF849F909106D3A438BB3B6460AD76EF48E5E9D445BB8D3C60F"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_22.xlsx",
+                                "Hash":  "82C62B9B6B5F96BBF8E841474F2CD5B623A196ACC895D2E58388035953F13AD9"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_23.xlsx",
+                                "Hash":  "96FAA3619DAC3A9D50F18722D2700DBF3E63E41101BA6CC1FA75F5F8D9D3F415"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_24.xlsx",
+                                "Hash":  "6CB6F74082E6BF8B3F53550F03EB6165D26779D510AD4A563AADFBA86B24BB6D"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_25.xlsx",
+                                "Hash":  "5804BFE2356C14FD696AE8C72CC70E4482A84CE1BC171E9C6B47BD2B1DB61E6C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_26.xlsx",
+                                "Hash":  "E1808593B10F1E760F3C28A997889581F6DC0D97636D07354BE119FC8D4B4AA1"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_29.xlsx",
+                                "Hash":  "2245AEB10A33B3718C70572AAEA163B47894F58058D38D0F4E0017F6896D3C1F"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\excel\\dot_63c82a742cb749d58d28cf05cf5fdcbc\\ho_TNg_QTRI_T18_31.xlsx",
+                                "Hash":  "357C366F2EE2E4BB860731CB1AF3AEFB1B1F71790DC5E0CBA33658CD13D055F0"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 01.pdf",
+                                "Hash":  "9E2995CD98C1ED9D87F0320F4F0F181312D458C2DA56D3F49C9BFFB0CA349596"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 02.pdf",
+                                "Hash":  "5FB292DB506745FF272F6D218B938D8272CF7184C8305426978FAD08E4EFF41B"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 03.pdf",
+                                "Hash":  "76CD96C02467412975E7C4F2DF3712C46CE2A34CF15FC962F6C16F624E24579A"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 04.pdf",
+                                "Hash":  "9D429E3A4CF57E95667AF9F1789AF626B6D9C0E651D5CABFC34AD92645233C79"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 05.pdf",
+                                "Hash":  "551CF2C685AF5D9D94A801549E6B6B26EEA0B47ECE3D2353213C3AFC1CB1AD97"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 06.pdf",
+                                "Hash":  "8C972E8C9D11B1E0A32AB621E2C34B1D87C7127E4EEA687DA3A0B9F04EAF3153"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 07.pdf",
+                                "Hash":  "A9F9D1884B96D88AFAB5ACE229EEE7DD418F82F06127968AD4DBD84BFA1AEEC3"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 08.pdf",
+                                "Hash":  "2E2472414BBA45F23E1157C354AB254A1FF8E1BE14A283C7BD2CF9F804327620"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 09.pdf",
+                                "Hash":  "FA05807E46D5E2451D6DB20358BE9F39791290D66FC8D6867E943E14B1A5E1C4"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 10.pdf",
+                                "Hash":  "CFB705505EDDC1FA5C920E5AEA91885A41CD7EEEF6EF8A3AFC8E795859B1F94A"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 109.pdf",
+                                "Hash":  "5B334206CB1B532E62909972A35312C802E0021DC987DADAACDDE4D26B02D92A"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 11.pdf",
+                                "Hash":  "44B622D858060C1319ACA1054115AF5D322486EDC3339556E77941D40DA73923"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 110.pdf",
+                                "Hash":  "89237488DEA61950C1440AB1F68582BF322811C5F01259CC75439DD574BAFD61"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 12.pdf",
+                                "Hash":  "1F5C7131F652CECD33AC6473DCF36BB10965E1C88917AB53C5C844CBB16F0A1B"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 13.pdf",
+                                "Hash":  "B989DAC2B093D78C521D8F62776E2C4AC8A03A54F3764B95A6A23E613A828E05"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 14.pdf",
+                                "Hash":  "578DEA736D1D98BCE9804C62ABDC4F369F4874FA4E08D0A39816B1849EF28390"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 15.pdf",
+                                "Hash":  "C562D0F82E632D19054E1651E10ED88BBF91C06312AD9CB424FB60FCAD65CA7A"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 16.pdf",
+                                "Hash":  "B1AA1DA67DE2FA54EDE27CE65E6E4122E14C4EE3F10710D9625B2CFB919D3D8F"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 17.pdf",
+                                "Hash":  "B6192B3F4B8818174CC88A7F84532808695AFF53CB34583AC7877622317EA102"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 18.pdf",
+                                "Hash":  "97E804CF9318E846EF597862DBCED280557BE254EAEACC4FFE88BFC37954CAD9"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 19.pdf",
+                                "Hash":  "B013929C738DFB72AF7A20C298CB4B614F1BCB6ADE7EBBDBB35F6A703C4BE388"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 20.pdf",
+                                "Hash":  "0C447499E75CD13544176A6F386BC6315B99209553C9E41E52D79D2A1BC9EC82"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 21.pdf",
+                                "Hash":  "CF2967510002A234D07D341255F44C9FF145E4D5DC526AFC0F153CBEF4A36E4C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 23.pdf",
+                                "Hash":  "6F6EE0CAEC763AE1D1CAA4E6DF35257591DA9646B3F2D8A106D74DBD8A9A2DE9"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 27.pdf",
+                                "Hash":  "30C1D286B573B0DF08E9D1AE05E55836517560BC2780C5E2FC8CA010019C463C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 28.pdf",
+                                "Hash":  "3F45A1DF46894F6CC6D22EA7C790F67D17F98FC7DF78E8578995B4A79AC5B876"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 30.pdf",
+                                "Hash":  "FCD392FDFD477CCA0E5968F70F216069DD8058B97CF9E765A3A7A10FAB02F6DD"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 31.pdf",
+                                "Hash":  "5CA827B8C190D194957C94F4A37E37D3096A518C91C58D55DB0FF975DEF6E2FE"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_ 32.pdf",
+                                "Hash":  "1A952C094C4C5E3976ACEB5328CC887E94C5D44D59726021DDC0BCA7B708C62C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_12.pdf",
+                                "Hash":  "BC12ADFF7C4F226BDE8F619FD3AB6BB8ED2ACE264783462C74B6502F1EC9C3D3"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_14.pdf",
+                                "Hash":  "B0196F40E8646DDFA15BE16F437428439735145F49482025184770820C00B504"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_22.pdf",
+                                "Hash":  "CB65C234E00B0319AE045CDE55023ECCCFFD1BB2B8DBD0C9D34963A7919CF561"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_23.pdf",
+                                "Hash":  "25D4054F466EB75D73232F566315EC8B2A572313A524A239EA6687CC8D5224DE"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_24.pdf",
+                                "Hash":  "CC61FBBCB9854CF8FB9B453B52BD4684F0B7C44C46A06B854227284452DD6F4B"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_25.pdf",
+                                "Hash":  "07BEE223BF7D7CCCE1EB922F7CDC080FCF8AEC74F947EBC5BC12A6531EFA2779"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_26.pdf",
+                                "Hash":  "DD2713AA35844AEBED950B4FF46F15273752235A14F356B7F8E1FCD5E98FA82C"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_29.pdf",
+                                "Hash":  "8AC818A33DE2A78ACF1B939CD0079E73171658C603BC1A76A6D4A9700AE53BCB"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\ho_TNg_QTRI_T18_31.pdf",
+                                "Hash":  "7508997A6BE2DB9E51FD2241504DC4B0BBC7EBC1D5225F559093E67E88A260F4"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\PDF_REPORT.json",
+                                "Hash":  "B99BE71ACD6F8A364F5CB5702ED0AD0DB51912C166E9F45BBF6DC5B390AE5FFE"
+                            },
+                            {
+                                "Path":  "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output\\pdf\\dot_599268997abf4ab78702846770207ff8\\TongHop.pdf",
+                                "Hash":  "52007F8C906162AA3D4245CA774E5221BBAE52D5264165720628518530C41FAB"
+                            }
+                        ]
+}

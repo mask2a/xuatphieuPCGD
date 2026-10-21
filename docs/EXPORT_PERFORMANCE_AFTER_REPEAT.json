@@ -1,0 +1,134 @@
+{
+  "excel_seconds": 17.542001800000435,
+  "pdf_seconds": 14.9555741999975,
+  "total_seconds": 32.497575999997935,
+  "com_invocations": 25689,
+  "functions": [
+    {
+      "function": "export_workflow.py:106:export_excel_batch",
+      "calls": 1,
+      "seconds": 17.5411323
+    },
+    {
+      "function": "excel_exporter.py:97:export_households",
+      "calls": 1,
+      "seconds": 17.538063400000002
+    },
+    {
+      "function": "export_workflow.py:220:export_pdf_batch",
+      "calls": 1,
+      "seconds": 12.760606300000001
+    },
+    {
+      "function": "excel_exporter.py:623:_validate_saved_workbook",
+      "calls": 2,
+      "seconds": 8.9171034
+    },
+    {
+      "function": "excel_exporter.py:756:_com_cell_format",
+      "calls": 276,
+      "seconds": 7.6218662
+    },
+    {
+      "function": "excel_exporter.py:794:_validate_sheet_format",
+      "calls": 2,
+      "seconds": 5.3753908
+    },
+    {
+      "function": "excel_exporter.py:565:_template_signature",
+      "calls": 2,
+      "seconds": 4.8739702000000005
+    },
+    {
+      "function": "excel_exporter.py:317:_populate_workbook",
+      "calls": 1,
+      "seconds": 4.2874301
+    },
+    {
+      "function": "excel_exporter.py:496:_verify_template_sheet",
+      "calls": 2,
+      "seconds": 3.2810059000000003
+    },
+    {
+      "function": "print_layout.py:15:page_setup",
+      "calls": 2,
+      "seconds": 2.9268441000000003
+    },
+    {
+      "function": "excel_exporter.py:427:_populate_member_page",
+      "calls": 1,
+      "seconds": 2.1536199000000003
+    },
+    {
+      "function": "approved_mapping.py:79:verify_targets",
+      "calls": 2,
+      "seconds": 1.7769335000000002
+    },
+    {
+      "function": "excel_exporter.py:492:_configure_page",
+      "calls": 1,
+      "seconds": 1.4738412
+    },
+    {
+      "function": "print_layout.py:32:normalize_geometry",
+      "calls": 1,
+      "seconds": 1.4738379000000001
+    },
+    {
+      "function": "school_year_labels.py:106:update_school_year_labels",
+      "calls": 1,
+      "seconds": 1.3495337
+    },
+    {
+      "function": "excel_exporter.py:1007:_write_preserving_source_value",
+      "calls": 18,
+      "seconds": 0.9063662
+    },
+    {
+      "function": "export_workflow.py:143:validate_pdf",
+      "calls": 3,
+      "seconds": 0.8411085
+    },
+    {
+      "function": "print_layout.py:54:checkbox",
+      "calls": 15,
+      "seconds": 0.8053765
+    },
+    {
+      "function": "excel_exporter.py:605:<genexpr>",
+      "calls": 176,
+      "seconds": 0.6376812000000001
+    },
+    {
+      "function": "export_workflow.py:193:merge_pdfs",
+      "calls": 1,
+      "seconds": 0.5718426000000001
+    },
+    {
+      "function": "export_workflow.py:158:validate_pdf_content",
+      "calls": 1,
+      "seconds": 0.5196387
+    },
+    {
+      "function": "print_layout.py:80:fit_text",
+      "calls": 32,
+      "seconds": 0.34613320000000003
+    },
+    {
+      "function": "excel_exporter.py:366:_populate_header",
+      "calls": 1,
+      "seconds": 0.2890919
+    },
+    {
+      "function": "excel_exporter.py:609:<genexpr>",
+      "calls": 68,
+      "seconds": 0.2428922
+    },
+    {
+      "function": "print_layout.py:75:class_font_size",
+      "calls": 3,
+      "seconds": 0.09292160000000001
+    }
+  ],
+  "protected_unchanged": true
+}

@@ -1,0 +1,18 @@
+{
+  "approved_on": "2026-10-20",
+  "approval": "User confirmed current source and template workbooks",
+  "files": {
+    "source": {
+      "path": "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\dulieumau.xls",
+      "size_bytes": 623104,
+      "mtime_utc": "2026-10-19T14:25:01+00:00",
+      "sha256": "e7ce0b359bc516d54463a29ab88142ff355b735bda6408f77566dc5e0d3b262a"
+    },
+    "template": {
+      "path": "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\maubaocao.xls",
+      "size_bytes": 54272,
+      "mtime_utc": "2026-10-18T12:52:27+00:00",
+      "sha256": "963a75a4ae9258ff40f45006f97a9750c31023e0cee7bb4c115d938c52a9434e"
+    }
+  }
+}

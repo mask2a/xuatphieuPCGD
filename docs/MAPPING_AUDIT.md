@@ -37,6 +37,91 @@ xuất hiện ở nguồn.
 | 14 | `TEST_15` | `SCHOOL_YEAR_ROWS_NOT_MAPPED` | Các dữ liệu học tập, tốt nghiệp, quá trình học gắn với năm | Các dải năm in sẵn; chưa chọn hàng đích | Quy tắc gắn năm học chưa xác minh |
 | 15 | `TEST_15` | `UNMAPPED_FEMALE` | G — X nghĩa là nữ | Ứng viên `C{s+3}` | Có vị trí; chưa xác minh ký tự Wingdings để đánh dấu |
 
+## Phân loại 36 trường chưa ánh xạ A/B/C
+
+Tiêu chí:
+
+- **A — Đủ căn cứ để ánh xạ:** ô đích cụ thể và quy tắc nghiệp vụ/biểu
+  diễn đều đã được xác minh trực tiếp. Có tọa độ ứng viên nhưng thiếu quy
+  tắc không đủ điều kiện A.
+- **B — Có khả năng ánh xạ, cần xác nhận:** trên phiếu có vùng/nhãn gần
+  tương ứng, nhưng thiếu quy tắc nghiệp vụ, hàng năm đích, cách biểu diễn,
+  hoặc giải quyết xung đột.
+- **C — Không có vị trí phù hợp:** mẫu không có ô riêng cho trường đó;
+  không được nhét dữ liệu vào một ô khác.
+
+| Nhóm | Số trường | Trường |
+|---|---:|---|
+| A | 0 | Không có trường chưa ánh xạ nào vừa có ô đích vừa có quy tắc ghi đã xác minh |
+| B | 31 | `address`, `residence`, `female`, `residence_status`, `grade_group`, `class_name`, `school_district`, `school_name`, `graduation_level`, `supplementary_education`, `graduation_year`, `vocational_graduation_level`, `vocational_graduation_year`, `completed_education`, `completed_education_year`, `dropped_out_class`, `dropped_out_year`, `currently_studying_class`, `completed_class`, `reliteracy_level`, `disability_mobility`, `disability_hearing_speech`, `disability_vision`, `disability_neurological`, `disability_intellectual`, `disability_learning`, `disability_autism`, `disability_other`, `disability_certified`, `learning_capacity`, `notes` |
+| C | 5 | `priority_category`, `school_code`, `diploma_number`, `special_circumstances`, `special_circumstances_details` |
+
+Danh mục chi tiết dưới đây nêu tọa độ ứng viên và lý do. Với nhóm B, tọa độ
+quan sát được không phải quyền ghi dữ liệu. Với nhóm C, không có đích phù
+hợp đã xác minh trên mẫu hiện tại.
+
+## Bảng quyết định cho 31 trường nhóm B
+
+Mức ưu tiên dưới đây là **đề xuất phục vụ hỏi/duyệt**, không phải kết luận
+về tính bắt buộc theo quy định. Requiredness nghiệp vụ hiện chưa được xác
+nhận. Các trường được gom theo câu hỏi chung để giảm số lượt xác nhận.
+
+| Nhóm/câu hỏi | Trường nguồn | Cột | Ý nghĩa nghiệp vụ | Vị trí đích có khả năng tương ứng | Quy tắc còn thiếu | Ưu tiên đề xuất |
+|---|---|---|---|---|---|---|
+| B1 | `female` | G | X biểu thị nữ | `C{s+3}`, cạnh nhãn “Nữ:” | Ký tự/định dạng chính xác để đánh dấu; cách xử lý nguồn khác `X` hoặc trống | Cần thiết; requiredness chưa xác nhận |
+| B2 | `residence` | O | Diện cư trú cấp hộ | `Z2:AG2`, có lựa chọn Thường trú/Tạm trú | Quy tắc chọn đúng placeholder; chuẩn hóa viết hoa/thường; xử lý xung đột trong hộ | Cần thiết; requiredness chưa xác nhận |
+| B3 | `address` | M | Địa chỉ gồm số nhà/đường/tổ nếu có | `A3:G3`, nhãn “Xóm (2)” | Có được in toàn bộ địa chỉ vào ô “Xóm” hay chỉ một thành phần; xử lý độ dài | Cần thiết; requiredness chưa xác nhận |
+| B4 | `residence_status` | P | Tình trạng cư trú cá nhân | Ứng viên `AF` trong khối, nhãn trạng thái chuyển đến/đi/chết | Từ điển giá trị P và phép tương đương với nhãn đích; không đồng nhất với O | Cần thiết nếu có dữ liệu; requiredness chưa xác nhận |
+| B5 | `grade_group`, `class_name` | Q, R | Khối/lớp học hiện tại | Ứng viên `H:J` tại một hàng trong khối thành viên | Hàng năm đích khi nguồn không kèm năm; quy tắc ghép khối/lớp trong vùng đích | Cần thiết nếu có dữ liệu; requiredness chưa xác nhận |
+| B6 | `school_district`, `school_name` | S, T | Huyện và tên trường đang học | Ứng viên `K:O` ở hàng tương ứng của khối | Thứ tự/chuỗi kết hợp hai trường; delimiter; cách xử lý một trường bị thiếu; hàng năm | Cần thiết nếu có dữ liệu; requiredness chưa xác nhận |
+| B7 | `graduation_level`, `supplementary_education`, `graduation_year` | V, W, X | Bậc tốt nghiệp phổ thông, bổ túc và năm tốt nghiệp | Ứng viên P, Q, R trong khối | Hàng năm đích; giá trị nào được ghi cho từng loại tốt nghiệp; định dạng năm | Cần thiết khi nguồn có dữ liệu; requiredness chưa xác nhận |
+| B8 | `vocational_graduation_level`, `vocational_graduation_year` | Y, AA | Bậc và năm tốt nghiệp nghề | Ứng viên S và T:U trong khối | Hàng năm; định dạng năm; vùng T:U và cách ghi khi thiếu một thành phần | Cần thiết khi nguồn có dữ liệu; requiredness chưa xác nhận |
+| B9 | `completed_education`, `completed_education_year` | AB, AC | Học xong và năm hoàn thành | Ứng viên V, W trong khối | Hàng năm, quan hệ giữa trạng thái học xong và năm ghi nhận | Cần thiết khi nguồn có dữ liệu; requiredness chưa xác nhận |
+| B10 | `dropped_out_class`, `dropped_out_year` | AD, AE | Bỏ học và năm bỏ học | Ứng viên X, Y trong khối | Hàng năm; xác định giá trị/lớp và định dạng năm; xử lý dữ liệu thiếu cặp | Cần thiết khi nguồn có dữ liệu; requiredness chưa xác nhận |
+| B11 | `currently_studying_class`, `completed_class` | AF, AG | Lớp đang học và lớp hoàn thành | Ứng viên Z, AA trong khối | Hàng năm; phân biệt/ưu tiên hai trạng thái nếu cùng có dữ liệu | Cần thiết khi nguồn có dữ liệu; requiredness chưa xác nhận |
+| B12 | `reliteracy_level` | AH | Mức tái mù chữ | Ứng viên AB trong khối | Hàng năm; từ điển giá trị và cách ghi mức | Cần thiết nếu có trường hợp; requiredness chưa xác nhận |
+| B13 | `disability_mobility`, `disability_hearing_speech`, `disability_vision`, `disability_neurological`, `disability_intellectual`, `disability_learning`, `disability_autism`, `disability_other` | AI:AP | Các loại khuyết tật | Ứng viên AC “Loại” trong khối | Cách ghép nhiều loại vào một ô; thứ tự/delimiter; cách biểu diễn “khác”; hàng năm | Cần thiết nếu có trường hợp; requiredness chưa xác nhận |
+| B14 | `disability_certified`, `learning_capacity` | AQ, AR | Chứng nhận khuyết tật và khả năng học tập | Ứng viên AD, AE trong khối | Giá trị được phép, hàng/năm đích, tương quan với loại khuyết tật | Cần thiết nếu có trường hợp; requiredness chưa xác nhận |
+| B15 | `notes` | AX | Ghi chú thành viên | Ứng viên AG trong khối | Chọn hàng nào trong khối 5 dòng; quy tắc độ dài/xuống dòng | Tùy chọn đề xuất; chưa được phê duyệt |
+
+### Câu hỏi xác nhận gom theo quy tắc
+
+1. **B1 — Giới tính:** Khi cột G có `X`, chính xác ô/ký tự nào phải được đánh
+   dấu tại `C{s+3}`? Có thể xác nhận bằng ảnh/phiếu đã điền chuẩn hoặc hướng
+   dẫn biểu mẫu nào? Giá trị G trống/khác X phải để trống hay có quy tắc khác?
+2. **B2 — Diện cư trú:** Với O bằng Thường trú/Tạm trú (kể cả khác hoa
+   thường), placeholder nào ở `Z2` được đánh dấu và bằng ký tự gì? Nếu hộ có
+   nhiều giá trị O mâu thuẫn, xác nhận tiếp tục để trống/cảnh báo hay có quy
+   trình duyệt thủ công?
+3. **B3 — Địa chỉ:** Cột M có được in nguyên văn vào ô “Xóm (2)” không, hay
+   chỉ lấy thành phần tổ/xóm? Nếu nguồn chứa số nhà/đường mà không có xóm,
+   cần để trống hay vẫn in nguyên địa chỉ? Có giới hạn/chuẩn rút gọn nào?
+4. **B4 — Tình trạng cư trú:** Xin cung cấp danh sách đầy đủ giá trị có thể
+   có ở P và ý nghĩa từng giá trị; giá trị nào tương ứng các nhãn đích ở AF
+   (chuyển đến/chuyển đi/chết)? Các giá trị khác phải để trống/cảnh báo?
+5. **B5 — Khối/lớp hiện tại:** Q/R không có năm học đi kèm; hàng nào trong
+   5 dòng năm được dùng cho dữ liệu hiện tại? Có ghi cả khối và lớp vào
+   `H:J` không, theo định dạng nào? Xác nhận quan hệ với cột AF nếu AF cũng
+   chứa lớp đang học.
+6. **B6 — Huyện/trường:** Có được ghép S và T vào `K:O` không? Xin chốt thứ
+   tự, dấu phân cách, cách xử lý thiếu huyện/trường và hàng năm dùng cho dữ
+   liệu trường hiện tại.
+7. **B7–B12 — Học tập/tốt nghiệp:** Xin cung cấp bảng đối chiếu mỗi nguồn
+   với nhãn đích và hàng/năm. Với X/AA/AC/AE có năm tường minh, năm đó được
+   ánh xạ vào dòng nào trong các năm F9:F13? Với Q/R và các trạng thái không
+   kèm năm, dùng năm học cấu hình hay để trống/cảnh báo? Nếu nhiều kết quả
+   cùng tồn tại, ghi tất cả hay chỉ một kết quả theo quy tắc nào?
+8. **B13–B14 — Khuyết tật:** Xin xác nhận giá trị nguồn nào được coi là có
+   khuyết tật/chứng nhận/khả năng học; cách ghi khi có nhiều loại trong ô
+   AC; delimiter, thứ tự và hàng/năm cho AQ/AR.
+9. **B15 — Ghi chú:** Ghi AX vào hàng nào trong khối 5 hàng? Có được xuống
+   dòng/giới hạn độ dài hay không? Nếu không có quy tắc, xác nhận tiếp tục
+   cảnh báo và không ghi.
+
+Các mức ưu tiên trên không tự biến trường thành required. Cần người phụ
+trách nghiệp vụ xác nhận trường nào là bắt buộc, cần thiết hoặc tùy chọn
+trước nghiệm thu.
+
 ## Danh mục trường chưa ánh xạ
 
 `đích ứng viên` bên dưới chỉ ghi nhận cấu trúc in quan sát được, không phải
@@ -82,6 +167,24 @@ thành viên; chọn dòng phải dựa trên quy tắc năm học đã được
 | AT `special_circumstances_details` | Chi tiết hoàn cảnh | Không có trường tương ứng đã xác minh | Không có đích trên mẫu |
 | AX `notes` | Ghi chú thành viên | Ứng viên cột AG trong khối | Chưa xác định hàng của khối 5 dòng |
 
+### Bằng chứng trực tiếp trên mẫu cho G, J, O và các dòng năm
+
+Mẫu được mở bằng Excel COM ở chế độ `ReadOnly=True`; sau khi đóng workbook,
+SHA-256 của `maubaocao.xls` trước/sau không đổi.
+
+| Trường | Quan sát trong Excel | Kết luận audit |
+|---|---|---|
+| G — Nữ | `B12` ghi `Nữ:`; `C12` có giá trị `q`, font Wingdings | Xác nhận có ô/placeholder ứng viên `C{s+3}`. Chưa xác minh glyph/giá trị nào biểu thị lựa chọn hay cách mã hóa khác của nguồn; xếp B, không ghi |
+| J — Diện ưu tiên | Không thấy trường riêng dành cho diện ưu tiên trên phiếu; danh mục vùng thành viên không có nhãn tương ứng | Xếp C; giữ cảnh báo nếu dữ liệu nguồn có giá trị |
+| O — Diện cư trú | `Z2` có nội dung `Diện cư trú (5): q Thường trú   q Tạm trú` | Xác nhận hai lựa chọn in ở ô đầu phiếu, không xác nhận ký hiệu đánh dấu lựa chọn hay chuẩn hóa giá trị nguồn; xếp B, không ghi |
+| Năm học | `F9:F13` in lần lượt `2025 - 2026` đến `2029 - 2030`; hàng lớp/trường và tốt nghiệp có cột trống trong khối thành viên | Xác nhận cấu trúc nhiều hàng/năm trên phiếu. Nguồn không cung cấp khóa năm cho từng thông tin học tập; chưa thể gắn dòng từ `school_year` mà không suy đoán; xếp B |
+| Học tập/tốt nghiệp | Các cột ứng viên H:AE nằm trên cùng các hàng với nhãn năm cố định | Tọa độ theo cột có thể nhận biết, nhưng quy tắc chọn hàng/năm và tương quan giữa các trường chưa được xác nhận; xếp B |
+
+Nguồn hiện có giá trị `female` ở 185 bản ghi, `residence` ở 427 bản ghi,
+`priority_category` không có giá trị khác rỗng; các nhóm học tập/tốt nghiệp
+có nhiều giá trị. Việc J trống trong tệp mẫu không chứng minh J là trường
+tùy chọn trong mọi nghiệp vụ.
+
 ## Phân loại mức độ bắt buộc
 
 | Nhóm | Trường | Căn cứ và xử lý |
@@ -114,3 +217,9 @@ của hộ khớp cấu hình, và dừng trước khi tạo output nếu kiểm
 Năm học được ghi trong cảnh báo export để tránh bị hiểu là đã áp dụng. Các
 năm in sẵn trong mẫu và các trường học chưa được thay đổi cho tới khi quy
 tắc gắn dữ liệu nguồn vào dòng/năm cụ thể được xác nhận.
+
+Trong lượt audit 2026-10-20, đọc lại nguồn cho kết quả 427 bản ghi/120 hộ;
+hash nguồn trước/sau lượt đọc không đổi (`5382ace88e435e2c6d2746dc779ed700687c18dee4bce50c7b38cec5eca681c0`).
+Hash này khác hash nguồn ghi trong báo cáo đối chiếu cũ; không suy luận
+nguyên nhân hoặc thời điểm khác biệt. Hash `maubaocao.xls` trước/sau kiểm
+tra Excel COM chỉ đọc không đổi.

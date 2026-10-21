@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import string
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +26,7 @@ class TemplateMapping:
     short_form_max_members: int
     fixed_fields: dict[str, dict[str, str]]
     member_fields: dict[str, dict[str, Any]]
+    approved_member_fields: dict[str, dict[str, Any]]
     unmapped_household_fields: dict[str, str]
     unmapped_member_fields: dict[str, str]
     school_year_policy: str
@@ -68,6 +70,67 @@ def load_template_mapping(path: str | Path) -> TemplateMapping:
         if field["column"] not in string.ascii_uppercase:
             raise ValueError(f"Invalid Excel column in mapping: {field['column']}")
 
+    approved_member_fields = data["approved_member_fields"]
+    expected_approved_fields = {
+        "class_name": ("class_name", "H"),
+        "school_name": ("school_name", "K"),
+        "graduation_level": ("graduation_level", "P"),
+        "graduation_year": ("graduation_year", "R"),
+    }
+    if set(approved_member_fields) != set(expected_approved_fields):
+        raise ValueError(
+            "The approved education-field mapping is incomplete or contains "
+            "unapproved fields"
+        )
+    approved_addresses: set[str] = set()
+    for field_name, (expected_source, expected_column) in expected_approved_fields.items():
+        field = approved_member_fields[field_name]
+        if field.get("source") != expected_source:
+            raise ValueError(f"Unexpected source for approved field {field_name}")
+        if (
+            len(field["cells_by_slot"]) != len(rows)
+            or len(field["merge_areas_by_slot"]) != len(rows)
+        ):
+            raise ValueError(
+                f"Approved field {field_name} must define every member slot"
+            )
+        for slot_index, (address, merge_area, start_row) in enumerate(
+            zip(
+                field["cells_by_slot"],
+                field["merge_areas_by_slot"],
+                rows,
+                strict=True,
+            )
+        ):
+            match = re.fullmatch(r"([A-Z]{1,3})(\d+)", address)
+            if (
+                match is None
+                or match.group(1) != expected_column
+                or int(match.group(2)) != start_row
+            ):
+                raise ValueError(
+                    f"Approved field {field_name} has an unverified target "
+                    f"at slot {slot_index + 1}: {address!r}"
+                )
+            if address in approved_addresses:
+                raise ValueError(f"Duplicate approved template cell: {address}")
+            approved_addresses.add(address)
+            if merge_area is not None:
+                merge_match = re.fullmatch(
+                    rf"{re.escape(address)}:([A-Z]{{1,3}}){start_row}",
+                    merge_area,
+                )
+                if merge_match is None:
+                    raise ValueError(
+                        f"Invalid verified merge area for {field_name}: "
+                        f"{merge_area!r}"
+                    )
+        if field_name == "class_name":
+            if field.get("comparison_source") != "grade_group":
+                raise ValueError("B5 must retain grade_group as its comparison source")
+            if not isinstance(field.get("review_values"), list):
+                raise ValueError("B5 review_values must be a list")
+
     return TemplateMapping(
         template_sheet=data["template_sheet"],
         member_start_rows=rows,
@@ -83,6 +146,9 @@ def load_template_mapping(path: str | Path) -> TemplateMapping:
         short_form_max_members=int(data["short_form_max_members"]),
         fixed_fields={key: dict(value) for key, value in fixed_fields.items()},
         member_fields={key: dict(value) for key, value in member_fields.items()},
+        approved_member_fields={
+            key: dict(value) for key, value in approved_member_fields.items()
+        },
         unmapped_household_fields=dict(data["unmapped_household_fields"]),
         unmapped_member_fields=dict(data["unmapped_member_fields"]),
         school_year_policy=data["school_year_policy"],
