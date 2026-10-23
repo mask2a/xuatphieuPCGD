@@ -8,13 +8,14 @@ output/
 /*.pdf
 docs/CURRENT_SOURCE_VERIFICATION.json
 
-# Source workbooks and templates are local data, not source code.
+# Source workbooks are local data; ship the blank application template.
 *.xls
 *.xlsx
 *.xlsm
 *.xlt
 *.xltx
 *.xltm
+!templates/maubaocao.xls
 
 # Excel lock files and transient exporter files.
 ~$*

@@ -60,9 +60,9 @@
     "phone": "AW",
     "notes": "AX"
   },
-  "output_directory": "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output",
-  "source_path": "C:/Users/Admin/Desktop/VSCODE PROJECT/PHOCAPGD/TỔ 3 ĐÃ COPY LẠI.xls",
-  "template_path": "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\templates\\maubaocao.xls",
+  "output_directory": "output",
+  "source_path": "",
+  "template_path": "templates/maubaocao.xls",
   "export_workers": 4,
   "pdf_validation": false
 }
