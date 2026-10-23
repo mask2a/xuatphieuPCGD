@@ -13,6 +13,18 @@
 
 ## 2. Cài đặt và khởi động
 
+Cách nhanh trên Windows:
+
+1. Cài Python 3.10 trở lên (có Tcl/Tk) và Microsoft Excel bản desktop.
+2. Tải ZIP từ GitHub rồi giải nén, hoặc dùng `git clone https://github.com/mask2a/xuatphieuPCGD.git`.
+3. Mở `setup.bat` để tạo môi trường ảo, tải thư viện và kiểm tra biểu mẫu/cấu hình. Lần cài đầu cần Internet.
+4. Mở `run.bat` để chạy. Nếu chưa có môi trường ảo, file này tự gọi bước cài đặt.
+5. Chọn dữ liệu nguồn của bạn trong giao diện, kiểm tra xã/phường và năm học rồi xuất.
+
+Repo đã kèm biểu mẫu, ánh xạ và cấu hình đường dẫn tương đối. Không cần chép thư mục `venv` từ máy khác. Sau khi cập nhật mã bằng `git pull`, chạy lại `setup.bat` để cài thư viện nếu có thay đổi. Chọn thư mục giải nén có quyền ghi để lưu môi trường và kết quả.
+
+Nếu muốn thao tác bằng lệnh:
+
 Mở PowerShell tại thư mục dự án, chạy lần lượt:
 
 ```powershell
@@ -28,6 +40,14 @@ Nếu đã có môi trường `venv` và đã cài thư viện, những lần sa
 ```
 
 Các lệnh trên dùng trực tiếp Python trong môi trường ảo, không cần kích hoạt môi trường bằng `Activate.ps1`.
+
+Kiểm tra cài đặt độc lập:
+
+```powershell
+.\venv\Scripts\python.exe scripts/check_install.py
+```
+
+Công cụ kiểm tra thư viện, Tkinter, cấu hình, sheet biểu mẫu và đăng ký Excel COM; không mở Excel hoặc xuất dữ liệu. Muốn xác nhận xuất thực tế, chạy `run.bat` trong phiên Windows đang đăng nhập rồi xuất một hộ thử.
 
 ## 3. Đọc và kiểm tra dữ liệu
 
