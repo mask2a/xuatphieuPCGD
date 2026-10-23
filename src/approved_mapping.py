@@ -76,11 +76,22 @@ def household_address(household):
     return address_text(next(iter(addresses), ""), household.commune_name)
 
 
+def template_label(sheet, address):
+    text = str(sheet.Range(address).Value2 or "")
+    label, separator, _ = text.partition(":")
+    if not separator or not label.strip():
+        raise ValueError(f"Template label must contain ':' at {address}")
+    return label + separator
+
+
+def address_label(sheet):
+    return template_label(sheet, "A3")
+
+
 def verify_targets(sheet, rows):
     if sheet.Range("A3").MergeArea.Address.replace("$", "") != "A3:G3":
         raise ValueError("Unexpected address merge area")
-    if not str(sheet.Range("A3").Value2).startswith("Xóm (2):"):
-        raise ValueError("Unexpected address label")
+    address_label(sheet)
     residence = sheet.Range("Z2")
     if residence.MergeArea.Address.replace("$", "") != "Z2:AG2" or str(residence.Value2).count("q") != 2:
         raise ValueError("Unexpected residence checkbox structure")

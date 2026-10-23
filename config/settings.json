@@ -1,5 +1,5 @@
 {
-  "commune_name": "Phan Đình Phùng",
+  "commune_name": "Quan Triều",
   "school_year": "2025-2026",
   "reader": {
     "preferred_sheet": "MauNhapLieu",
@@ -62,5 +62,7 @@
   },
   "output_directory": "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\output",
   "source_path": "C:/Users/Admin/Desktop/VSCODE PROJECT/PHOCAPGD/TỔ 3 ĐÃ COPY LẠI.xls",
-  "template_path": "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\tempplates\\maubaocao.xls"
+  "template_path": "C:\\Users\\Admin\\Desktop\\VSCODE PROJECT\\PHOCAPGD\\templates\\maubaocao.xls",
+  "export_workers": 4,
+  "pdf_validation": false
 }

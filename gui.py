@@ -21,7 +21,7 @@ from settings import (
 )
 from src.school_year_labels import build_school_year_labels
 from src.template_mapper import TemplateMapping, load_template_mapping
-from src.export_workflow import ExcelBatch, export_excel_batch, export_pdf_batch
+from src.export_workflow import ExcelBatch, export_excel_batch, export_pdf_batch, export_existing_excel_pdf
 
 BATCH_FEATURES_VERIFIED = True
 
@@ -29,7 +29,7 @@ BATCH_FEATURES_VERIFIED = True
 PROJECT_ROOT = Path(__file__).resolve().parent
 SETTINGS_PATH = PROJECT_ROOT / "config" / "settings.json"
 MAPPING_PATH = PROJECT_ROOT / "config" / "template_mapping.json"
-DEFAULT_TEMPLATE_PATH = PROJECT_ROOT / "maubaocao.xls"
+DEFAULT_TEMPLATE_PATH = PROJECT_ROOT / "templates" / "maubaocao.xls"
 
 FIELD_LABELS = {
     "address": "Địa chỉ",
@@ -102,6 +102,7 @@ def export_one_household(
     commune_name: str | None = None,
     progress=None,
     source_name=None,
+    cancel_event=None,
 ) -> ExcelBatch:
     """Export the selected household through the official, no-overwrite workflow."""
     if commune_name is None:
@@ -114,6 +115,7 @@ def export_one_household(
         commune_name=commune_name,
         progress=progress,
         source_name=source_name,
+        cancel_event=cancel_event,
     )
 
 
@@ -137,6 +139,7 @@ class PCGDApp:
         self._household_by_id: dict[str, Household] = {}
         self._events: queue.Queue[tuple[str, object]] = queue.Queue()
         self._busy = False
+        self._cancel_event = threading.Event()
         self._closing = False
         self._last_excel_batch = None
 
@@ -178,8 +181,8 @@ class PCGDApp:
 
     def _configure_window(self) -> None:
         self.root.title("PCGD HỘ GIA ĐÌNH")
-        self.root.geometry("1180x790")
-        self.root.minsize(920, 650)
+        self.root.geometry("1180x870")
+        self.root.minsize(920, 730)
         style = ttk.Style(self.root)
         if "vista" in style.theme_names():
             style.theme_use("vista")
@@ -298,6 +301,10 @@ class PCGDApp:
             command=self.export_all_pdf,
         )
         self.export_pdf_button.pack(side="left", padx=(8, 0))
+        self.existing_pdf_button = ttk.Button(
+            files, text="Excel có sẵn → PDF", command=self.export_existing_pdf,
+        )
+        self.existing_pdf_button.grid(row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
         self.open_output_button = ttk.Button(
             actions,
             text="Mở thư mục kết quả",
@@ -381,9 +388,11 @@ class PCGDApp:
             length=160,
         )
         self.progress.grid(row=0, column=1, sticky="ew", padx=(8, 0))
+        self.stop_button = ttk.Button(footer, text="Dừng xuất", state="disabled", command=self.stop_export)
+        self.stop_button.grid(row=0, column=2, padx=(8, 0))
         self.log_text = tk.Text(
             footer,
-            height=5,
+            height=10,
             wrap="word",
             font=("Consolas", 9),
             state="disabled",
@@ -612,6 +621,7 @@ class PCGDApp:
         self.export_pdf_button.configure(state="normal" if loaded and self._last_excel_batch is not None and self._last_excel_batch.accepted else "disabled")
         self.pdf_validation_check.configure(state="disabled" if self._busy else "normal")
         self.export_workers_input.configure(state="disabled" if self._busy else "normal")
+        self.existing_pdf_button.configure(state="disabled" if self._busy else "normal")
 
     def _batch_context(self):
         if self._busy or not BATCH_FEATURES_VERIFIED:
@@ -661,7 +671,7 @@ class PCGDApp:
         self._last_excel_batch = None
         self._log(f"Bắt đầu xuất Excel: {len(households)} hộ. Kết quả chia theo tên nguồn; thêm hậu tố khi trùng, không ghi đè.")
         self._log(f"Xuất song song: tối đa {workers} tệp nguồn cùng lúc.")
-        self._start_background("Đang xuất Excel", lambda: export_excel_batch(households, template, output, mapping, commune_name=commune, progress=self._batch_progress, source_name=source_name, workers=workers), self._on_batch_excel_complete)
+        self._start_background("Đang xuất Excel", lambda: export_excel_batch(households, template, output, mapping, commune_name=commune, progress=self._batch_progress, source_name=source_name, workers=workers, cancel_event=self._cancel_event), self._on_batch_excel_complete)
 
     def _on_batch_excel_complete(self, batch):
         self._last_excel_batch = batch
@@ -693,10 +703,36 @@ class PCGDApp:
         mode = "kiểm tra đầy đủ" if validate else "bỏ kiểm tra lại Excel và nội dung PDF"
         self._log(f"Bắt đầu PDF: {len(batch.accepted)} phiếu; {mode}.")
         self._log(f"Xuất song song: tối đa {workers} tệp nguồn cùng lúc.")
-        self._start_background("Đang xuất PDF", lambda: export_pdf_batch(batch, output, progress=self._batch_progress, validate=validate, workers=workers), self._on_batch_pdf_complete)
+        self._start_background("Đang xuất PDF", lambda: export_pdf_batch(batch, output, progress=self._batch_progress, validate=validate, workers=workers, cancel_event=self._cancel_event), self._on_batch_pdf_complete)
+
+    def export_existing_pdf(self):
+        if self._busy:
+            return
+        paths = filedialog.askopenfilenames(
+            parent=self.root, title="Chọn các file Excel để xuất PDF",
+            filetypes=[("Excel", "*.xls *.xlsx *.xlsm")],
+        )
+        if not paths:
+            return
+        output = self.output_path.get().strip()
+        if not output:
+            output = filedialog.askdirectory(parent=self.root, title="Chọn thư mục kết quả PDF")
+        if not output:
+            return
+        self._log(f"Xuất PDF từ {len(paths)} file Excel có sẵn, dùng vùng in đã lưu trong file.")
+        self._start_background(
+            "Đang xuất PDF từ Excel có sẵn",
+            lambda: export_existing_excel_pdf(paths, output, progress=self._batch_progress, cancel_event=self._cancel_event),
+            self._on_batch_pdf_complete,
+        )
 
     def _on_batch_pdf_complete(self, report):
-        excel = self._last_excel_batch.report
+        excel = self._last_excel_batch.report if self._last_excel_batch else None
+        self._show_pdf_result(report, excel)
+
+    def _show_pdf_result(self, report, excel):
+        from types import SimpleNamespace
+        excel = excel or SimpleNamespace(success_count=0, failure_count=0)
         self.export_stats.set(f"Excel: {excel.success_count} thành công / {excel.failure_count} lỗi · PDF: {len(report.successes)} thành công / {len(report.failures)} lỗi · Tổng hợp: {report.total_pages} trang")
         for item in report.successes:
             self._log(f"PDF hộ {item.household_code}: {item.pages} trang — {item.path}")
@@ -894,6 +930,7 @@ class PCGDApp:
                 commune_name=commune,
                 progress=self._batch_progress,
                 source_name=source_name,
+                cancel_event=self._cancel_event,
             )
 
         self._start_background("Đang xuất hộ đã chọn", work, self._on_batch_excel_complete)
@@ -932,7 +969,9 @@ class PCGDApp:
     ) -> None:
         if self._busy:
             return
+        self._cancel_event.clear()
         self._busy = True
+        self.stop_button.configure(state="normal" if on_success == self._on_batch_excel_complete or on_success == self._on_batch_pdf_complete else "disabled")
         self.progress.configure(mode="indeterminate")
         self.progress_text.set(description)
         self.progress.start(12)
@@ -951,6 +990,13 @@ class PCGDApp:
         threading.Thread(target=run, name="pcgd-background-task", daemon=False).start()
         self.root.after(100, self._drain_events)
 
+    def stop_export(self) -> None:
+        if self._busy:
+            self._cancel_event.set()
+            self.stop_button.configure(state="disabled")
+            self.progress_text.set("Đang dừng sau hộ hiện tại…")
+            self._log("Đã yêu cầu dừng xuất; đang đóng workbook và giữ các file đã hoàn tất.")
+
     def _drain_events(self) -> None:
         if self._closing:
             return
@@ -967,6 +1013,8 @@ class PCGDApp:
                 self.progress.stop()
                 self.progress.configure(mode="determinate", maximum=max(1, total), value=done)
                 self.progress_text.set(message)
+                if self._cancel_event.is_set():
+                    self.progress_text.set("Đang dừng sau hộ hiện tại…")
                 self._log(message)
             elif kind == "success":
                 callback, result = payload
@@ -977,8 +1025,12 @@ class PCGDApp:
                 self._show_error("Không thể hoàn tất tác vụ", str(error))
             elif kind == "finished":
                 self._busy = False
+                self.stop_button.configure(state="disabled")
                 self.progress.stop()
                 self.progress_text.set("Sẵn sàng")
+                if self._cancel_event.is_set():
+                    self.progress_text.set("Đã dừng xuất")
+                    self._log("Đã dừng xuất an toàn. Các file đã hoàn tất được giữ lại.")
                 self._refresh_export_buttons()
         if self._busy or not self._events.empty():
             self.root.after(100, self._drain_events)
@@ -1003,8 +1055,8 @@ class PCGDApp:
         if self._busy:
             self._show_warning(
                 "Tác vụ đang chạy",
-                "Hãy đợi tác vụ hoàn tất để bảo đảm đóng workbook và giải phóng "
-                "Excel COM an toàn.",
+                "Nếu đang xuất, hãy bấm Dừng xuất và đợi hộ hiện tại hoàn tất "
+                "để đóng workbook và giải phóng Excel an toàn.",
             )
             return
         self._closing = True

@@ -133,6 +133,25 @@ def _read_template_year_labels():
 
 
 class ExcelExporterTests(unittest.TestCase):
+    def test_blank_template_commune_still_updates_confirmation(self):
+        template = ROOT / "templates" / "maubaocao.xls"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            report = export_households(
+                [make_household("CONFIRMATION", 1)], template, root / "out", MAPPING,
+                settings_path=write_export_settings(root),
+            )
+            self.assertEqual(report.failure_count, 0, report.failures)
+            self.assertEqual(report.success_count, 1)
+            workbook = load_workbook(report.successes[0].path)
+            try:
+                confirmation = workbook.active["AA82"].value
+                self.assertIn(COMMUNE, confirmation)
+                self.assertNotIn("VĂN HÁN", confirmation)
+                self.assertIn("(Ký tên, đóng dấu)", confirmation)
+            finally:
+                workbook.close()
+
     def test_gui_test_export_applies_configured_year_labels_to_the_copy(self):
         household = make_household("GUI-TEST", 1)
         template_hash_before = hashlib.sha256(TEMPLATE.read_bytes()).digest()

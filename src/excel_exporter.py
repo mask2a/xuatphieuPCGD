@@ -17,7 +17,7 @@ from household_grouper import Household
 from settings import load_settings, validate_export_settings
 from src.school_year_labels import update_school_year_labels
 from src.approved_mapping import (
-    values as additional_values, verify_targets, household_address, key,
+    values as additional_values, verify_targets, household_address, address_label, template_label, key,
 )
 from src.template_mapper import TemplateMapping, load_template_mapping
 from src.print_layout import (
@@ -103,6 +103,7 @@ def export_households(
     settings_path: str | Path | None = None,
     apply_school_year_labels: bool = False,
     progress: Callable[[int, int, str], None] | None = None,
+    cancel_event=None,
 ) -> ExportReport:
     """Export one workbook per household, sharing one Excel COM session."""
     template = Path(template_path).resolve()
@@ -169,6 +170,8 @@ def export_households(
         template_signature = _template_signature(template, template_sheet, mapping)
 
         for index, household in enumerate(household_list):
+            if cancel_event is not None and cancel_event.is_set():
+                break
             if progress:
                 progress(index, len(household_list), f"Excel {index + 1}/{len(household_list)}; thành công {len(successes)}, lỗi {len(failures)}")
             code = _household_code(household)
@@ -245,6 +248,8 @@ def export_households(
             except Exception as error:
                 LOGGER.error("Failed exporting household %s: %s", code, error)
                 failures.append(ExportFailure(code, str(error)))
+                if progress:
+                    progress(index + 1, len(household_list), f"LỖI Excel hộ {code}: {error}")
             finally:
                 if workbook is not None:
                     try:
@@ -365,7 +370,7 @@ def _populate_workbook(
 
 def _populate_header(sheet, household: Household, mapping: TemplateMapping) -> None:
     address = household_address(household)
-    _write_labelled_cell(sheet.Range("A3"), "Xóm (2):", address or "", "address")
+    _write_labelled_cell(sheet.Range("A3"), address_label(sheet), address or "", "address")
     residence_cell = sheet.Range("Z2")
     _ensure_not_formula(residence_cell, "Z2")
     residence_number_format = residence_cell.NumberFormat
@@ -380,18 +385,30 @@ def _populate_header(sheet, household: Household, mapping: TemplateMapping) -> N
     residence_cell.NumberFormat = residence_number_format
     commune_field = mapping.fixed_fields["commune_name"]
     commune_cell = sheet.Range(commune_field["cell"])
+    commune_label = template_label(sheet, commune_field["cell"])
     _ensure_not_formula(commune_cell, commune_field["cell"])
     original_commune = _content_after_label(
         str(commune_cell.Value2 or ""),
-        commune_field["label"],
+        commune_label,
     )
     if not household.commune_name.strip():
         raise ExportConfigurationError("commune_name must be configured before export")
-    commune_cell.Value2 = f'{commune_field["label"]} {household.commune_name.strip()}'
+    commune_cell.Value2 = f'{commune_label} {household.commune_name.strip()}'
 
     confirmation = sheet.Range(mapping.confirmation_commune_cell)
     _ensure_not_formula(confirmation, mapping.confirmation_commune_cell)
     confirmation_text = str(confirmation.Value2 or "")
+    if not original_commune:
+        confirmation_heading = re.search(
+            r"XÁC NHẬN CỦA UBND[^\S\r\n]+(?:XÃ|PHƯỜNG|THỊ TRẤN)[^\S\r\n]+([^\r\n]+)",
+            confirmation_text,
+            flags=re.IGNORECASE,
+        )
+        if confirmation_heading is None:
+            raise ExportConfigurationError(
+                "Cannot identify the template commune in the confirmation heading"
+            )
+        original_commune = confirmation_heading.group(1).strip()
     if original_commune:
         original_name = original_commune.strip()
         start_index = confirmation_text.find(original_name)
@@ -512,7 +529,8 @@ def _verify_template_sheet(workbook, mapping: TemplateMapping):
             raise ExportConfigurationError(
                 f"Expected merged template cell at {field['cell']}"
             )
-        if not str(cell.Value2 or "").startswith(field["label"]):
+        expected_label = template_label(sheet, field["cell"]) if field["cell"] == mapping.fixed_fields["commune_name"]["cell"] else field["label"]
+        if not str(cell.Value2 or "").startswith(expected_label):
             raise ExportConfigurationError(
                 f"Template label differs from mapping at {field['cell']}"
             )
@@ -666,7 +684,7 @@ def _validate_saved_workbook(
             )
         main_sheet = workbook.Worksheets.Item(mapping.template_sheet)
         if main_sheet.Range(mapping.fixed_fields["commune_name"]["cell"]).Value2 != (
-            f'{mapping.fixed_fields["commune_name"]["label"]} {household.commune_name.strip()}'
+            f'{template_label(main_sheet, mapping.fixed_fields["commune_name"]["cell"])} {household.commune_name.strip()}'
         ):
             raise ValueError("Saved workbook commune value does not match the household")
         if main_sheet.Range(mapping.confirmation_commune_cell).Value2.find(

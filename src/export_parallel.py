@@ -50,15 +50,15 @@ def _record(job, result, started, pid):
         LOGGER.exception("Cannot write source execution metadata: %s", path)
 
 
-def _execute(job, progress_queue, index):
+def _execute(job, progress_queue, index, cancel_event=None):
     started = time.time_ns()
     try:
         from src.export_workflow import export_excel_batch, export_pdf_batch
         callback = None if progress_queue is None else lambda d, t, m: progress_queue.put((index, d, t, m))
         if job.kind == "excel":
-            result = export_excel_batch(job.payload, job.template, job.output_root, job.mapping, commune_name=job.commune_name, progress=callback, source_name=job.directory.name, _directory=job.directory)
+            result = export_excel_batch(job.payload, job.template, job.output_root, job.mapping, commune_name=job.commune_name, progress=callback, source_name=job.directory.name, _directory=job.directory, cancel_event=cancel_event)
         else:
-            result = export_pdf_batch(job.payload, job.output_root, validate=job.validate, progress=callback, _directory=job.directory)
+            result = export_pdf_batch(job.payload, job.output_root, validate=job.validate, progress=callback, _directory=job.directory, cancel_event=cancel_event)
     except Exception as error:
         # An ordinary source/COM failure must not poison the worker queue.
         result = _failed(job, error)
@@ -66,7 +66,7 @@ def _execute(job, progress_queue, index):
     return result
 
 
-def run_source_jobs(jobs, workers, progress=None):
+def run_source_jobs(jobs, workers, progress=None, cancel_event=None):
     """Keep at most workers jobs queued, return results in source order."""
     context = multiprocessing.get_context("spawn")
     results = [None] * len(jobs)
@@ -78,17 +78,21 @@ def run_source_jobs(jobs, workers, progress=None):
             progress(sum(fractions), len(jobs) * 1000, f"{jobs[index].directory.name}: {message}")
 
     with ExitStack() as stack:
-        manager = stack.enter_context(context.Manager()) if progress else None
-        messages = manager.Queue() if manager else None
+        manager = stack.enter_context(context.Manager()) if progress or cancel_event is not None else None
+        messages = manager.Queue() if progress and manager else None
+        shared_cancel = manager.Event() if cancel_event is not None else None
         pool = stack.enter_context(ProcessPoolExecutor(max_workers=min(workers, len(jobs)), mp_context=context))
         pending = {}
         next_index = 0
         while next_index < len(jobs) or pending:
+            if cancel_event is not None and cancel_event.is_set():
+                shared_cancel.set()
+                next_index = len(jobs)
             while next_index < len(jobs) and len(pending) < workers:
                 index = next_index
                 next_index += 1
                 try:
-                    pending[pool.submit(_execute, jobs[index], messages, index)] = index
+                    pending[pool.submit(_execute, jobs[index], messages, index, shared_cancel)] = index
                 except Exception as error:
                     results[index] = _failed(jobs[index], error)
                     _record(jobs[index], results[index], time.time_ns(), None)
@@ -108,4 +112,4 @@ def run_source_jobs(jobs, workers, progress=None):
                     results[index] = _failed(jobs[index], error)
                     _record(jobs[index], results[index], time.time_ns(), None)
                 emit(index, 1, 1, "Hoàn tất nguồn")
-    return tuple(results)
+    return tuple(result for result in results if result is not None)

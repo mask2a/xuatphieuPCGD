@@ -29,7 +29,7 @@
   "fixed_fields": {
     "commune_name": {
       "cell": "A1",
-      "label": "Xã (1):"
+      "label": "Phường(1):"
     },
     "household_code": {
       "cell": "Z1",

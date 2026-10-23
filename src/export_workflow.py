@@ -11,6 +11,7 @@ import uuid
 import unicodedata
 import logging
 from collections import Counter
+from types import SimpleNamespace
 from settings import export_worker_count
 
 from pypdf import PdfReader, PdfWriter
@@ -104,7 +105,26 @@ def group_progress(progress, index, count, label):
     return lambda done, total, message: progress(index * 1000 + min(1000, int(done * 1000 / max(1, total))), count * 1000, f"{label}: {message}")
 
 
-def export_excel_batch(households, template, output_root, mapping, *, commune_name, progress=None, source_name=None, workers=1, _directory=None):
+def export_existing_excel_pdf(paths, output_root, *, progress=None, cancel_event=None):
+    """Render existing workbooks using their saved print settings, without editing them."""
+    paths = tuple(dict.fromkeys(Path(path).resolve() for path in paths))
+    if not paths:
+        raise ValueError("Chưa chọn file Excel")
+    for path in paths:
+        if not path.is_file() or path.suffix.lower() not in {".xls", ".xlsx", ".xlsm"}:
+            raise ValueError(f"File Excel không hợp lệ: {path}")
+    sources = {}
+    for path in paths:
+        sources.setdefault(path.parent, []).append(path)
+    groups = []
+    for directory, files in sources.items():
+        accepted = tuple(AcceptedExcel(SimpleNamespace(household_code=path.stem), path, "") for path in files)
+        groups.append(ExcelBatch(ExportReport((), (), ()), accepted, Path(), Path(), directory, source_name=directory.name))
+    batch = ExcelBatch(ExportReport((), (), ()), tuple(a for g in groups for a in g.accepted), Path(), Path(), Path(output_root), groups=tuple(groups))
+    return export_pdf_batch(batch, output_root, progress=progress, validate=False, cancel_event=cancel_event)
+
+
+def export_excel_batch(households, template, output_root, mapping, *, commune_name, progress=None, source_name=None, workers=1, _directory=None, cancel_event=None):
     workers = export_worker_count(workers)
     households = tuple(sorted(households, key=household_order))
     sources = {}
@@ -119,13 +139,15 @@ def export_excel_batch(households, template, output_root, mapping, *, commune_na
                 members = tuple(sources[source])
                 directory = source_directory(output_root, "excel", Path(members[0].source_file).stem)
                 jobs.append(SourceJob("excel", members, Path(output_root), directory, Path(template).resolve(), Path(mapping).resolve(), commune_name))
-            groups = run_source_jobs(jobs, workers, progress)
+            groups = run_source_jobs(jobs, workers, progress, cancel_event=cancel_event)
         else:
             groups = []
             for index, source in enumerate(sorted(sources)):
+                if cancel_event is not None and cancel_event.is_set():
+                    break
                 members = sources[source]
                 label = Path(members[0].source_file).stem
-                groups.append(export_excel_batch(members, template, output_root, mapping, commune_name=commune_name, source_name=label, progress=group_progress(progress, index, len(sources), label)))
+                groups.append(export_excel_batch(members, template, output_root, mapping, commune_name=commune_name, source_name=label, progress=group_progress(progress, index, len(sources), label), cancel_event=cancel_event))
         report = ExportReport(tuple(s for g in groups for s in g.report.successes), tuple(f for g in groups for f in g.report.failures), tuple(w for g in groups for w in g.report.warnings))
         return ExcelBatch(report, tuple(a for g in groups for a in g.accepted), Path(template).resolve(), Path(mapping).resolve(), Path(output_root) / "excel", groups=tuple(groups))
     if source_name is None:
@@ -137,7 +159,7 @@ def export_excel_batch(households, template, output_root, mapping, *, commune_na
     with tempfile.TemporaryDirectory() as temporary:
         settings_path = Path(temporary) / "settings.json"
         settings_path.write_text(json.dumps({"commune_name": commune_name, "school_year": "2025-2026"}), encoding="utf-8")
-        report = export_households(households, template, directory, mapping, settings_path=settings_path, progress=progress)
+        report = export_households(households, template, directory, mapping, settings_path=settings_path, progress=progress, **({"cancel_event": cancel_event} if cancel_event is not None else {}))
     report = ExportReport(report.successes, report.failures + duplicates, report.warnings)
     # Exporter preserves household iteration order; duplicate/sanitized names fail safely.
     available = {str(item.household_code): item for item in report.successes}
@@ -232,7 +254,7 @@ def merge_pdfs(items, destination, *, validate=True):
     return total
 
 
-def export_pdf_batch(batch, output_root, *, progress=None, validate=True, workers=1, _directory=None):
+def export_pdf_batch(batch, output_root, *, progress=None, validate=True, workers=1, _directory=None, cancel_event=None):
     workers = export_worker_count(workers)
     if not batch.accepted:
         raise ValueError("Export and validate Excel before exporting PDF")
@@ -241,11 +263,13 @@ def export_pdf_batch(batch, output_root, *, progress=None, validate=True, worker
         if workers > 1 and len(eligible_groups) > 1:
             from src.export_parallel import SourceJob, run_source_jobs
             jobs = [SourceJob("pdf", group, Path(output_root), source_directory(output_root, "pdf", group.source_name or group.directory.name), validate=validate) for group in eligible_groups]
-            groups = run_source_jobs(jobs, workers, progress)
+            groups = run_source_jobs(jobs, workers, progress, cancel_event=cancel_event)
         else:
             groups = []
             for index, group in enumerate(eligible_groups):
-                groups.append(export_pdf_batch(group, output_root, progress=group_progress(progress, index, len(eligible_groups), group.source_name), validate=validate))
+                if cancel_event is not None and cancel_event.is_set():
+                    break
+                groups.append(export_pdf_batch(group, output_root, progress=group_progress(progress, index, len(eligible_groups), group.source_name), validate=validate, cancel_event=cancel_event))
         paths = tuple(p for g in groups for p in g.merged_paths)
         errors = [g.merge_error for g in groups if g.merge_error]
         return PdfBatch(tuple(s for g in groups for s in g.successes), tuple(f for g in groups for f in g.failures), paths[0] if len(paths) == 1 else None, sum(g.total_pages for g in groups), "; ".join(errors) or None, paths)
@@ -277,6 +301,8 @@ def export_pdf_batch(batch, output_root, *, progress=None, validate=True, worker
         total = len(ordered) * (2 if validate else 1)
         # Finish validation of the batch before starting any PDF conversion.
         for index, item in enumerate(ordered):
+            if cancel_event is not None and cancel_event.is_set():
+                break
             if not validate:
                 eligible.append(item)
                 continue
@@ -289,7 +315,11 @@ def export_pdf_batch(batch, output_root, *, progress=None, validate=True, worker
                 eligible.append(item)
             except Exception as error:
                 failures.append(ExportFailure(_household_code(item.household), str(error)))
+                if progress:
+                    progress(index + 1, total, f"LỖI nghiệm thu Excel hộ {_household_code(item.household)}: {error}")
         for index, item in enumerate(eligible):
+            if cancel_event is not None and cancel_event.is_set():
+                break
             if progress:
                 progress((len(ordered) if validate else 0) + index, total, f"PDF {index + 1}/{len(eligible)}; thành công {len(successes)}, lỗi {len(failures)}")
             workbook = None
@@ -322,6 +352,8 @@ def export_pdf_batch(batch, output_root, *, progress=None, validate=True, worker
                 successes.append(PdfResult(_household_code(item.household), final, expected_pages))
             except Exception as error:
                 failures.append(ExportFailure(_household_code(item.household), str(error)))
+                if progress:
+                    progress((len(ordered) if validate else 0) + index + 1, total, f"LỖI PDF hộ {_household_code(item.household)}: {error}")
             finally:
                 try:
                     if workbook is not None:
@@ -344,7 +376,7 @@ def export_pdf_batch(batch, output_root, *, progress=None, validate=True, worker
     merged = None
     pages = 0
     merge_error = None
-    if successes:
+    if successes and not (cancel_event is not None and cancel_event.is_set()):
         try:
             merged = Path(output_root) / (directory.name + ".pdf")
             pages = merge_pdfs(successes, merged, validate=validate)
